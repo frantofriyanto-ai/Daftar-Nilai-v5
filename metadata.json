@@ -1,0 +1,8 @@
+{
+  "name": "Remix Daftar Nilai - Antigravity Academic Management",
+  "description": "Otomatisasi Laporan Daftar Nilai \u0026 Google Sheets Apps Script Dashboard untuk Sekolah \u0026 Guru Kelas 12-A.",
+  "requestFramePermissions": [],
+  "majorCapabilities": [
+    "MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"
+  ]
+}
