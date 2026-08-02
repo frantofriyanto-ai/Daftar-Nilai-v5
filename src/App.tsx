@@ -17,6 +17,7 @@ import { ExportModal } from './components/ExportModal';
 import { ClassManagerModal } from './components/ClassManagerModal';
 import { LoginModal } from './components/LoginModal';
 import { UserManagementModal } from './components/UserManagementModal';
+import { WhatsAppModal } from './components/WhatsAppModal';
 import { Download, Share2, FileSpreadsheet, School, ChevronDown } from 'lucide-react';
 
 const DEFAULT_CLASSES = ['Kelas 12-A', 'Kelas 12-B', 'Kelas 11-MIPA 1', 'Kelas 10-A'];
@@ -31,6 +32,19 @@ export default function App() {
   });
   const [isLoginModalOpen, setIsLoginModalOpen] = useState(false);
   const [isUserMgmtModalOpen, setIsUserMgmtModalOpen] = useState(false);
+
+  // KKM & WhatsApp Modal State
+  const [kkm, setKkm] = useState<number>(() => {
+    const saved = localStorage.getItem('antigravity_kkm');
+    return saved ? Number(saved) : 75;
+  });
+  const [waModalStudent, setWaModalStudent] = useState<Student | null>(null);
+  const [isWaModalOpen, setIsWaModalOpen] = useState(false);
+
+  const handleOpenWhatsAppModal = (student: Student) => {
+    setWaModalStudent(student);
+    setIsWaModalOpen(true);
+  };
 
   const [teacherName, setTeacherName] = useState<string>(() => {
     const savedUser = localStorage.getItem('antigravity_current_user');
@@ -539,7 +553,9 @@ export default function App() {
               students={students}
               onUpdateStudent={handleUpdateStudent}
               onOpenExportModal={handleOpenExportModal}
+              onOpenWhatsAppModal={handleOpenWhatsAppModal}
               activeClass={activeClass}
+              kkm={kkm}
               webAppUrl={webAppUrl}
               isSyncing={isSyncing}
               lastSyncTime={lastSyncTime}
@@ -664,14 +680,24 @@ export default function App() {
             <TeacherNotesView
               students={students}
               onUpdateNotes={handleUpdateNotes}
+              onOpenWhatsAppModal={handleOpenWhatsAppModal}
               teacherName={teacherName}
               activeClass={activeClass}
+              kkm={kkm}
             />
           )}
         </main>
       </div>
 
       {/* Modals */}
+      <WhatsAppModal
+        isOpen={isWaModalOpen}
+        onClose={() => setIsWaModalOpen(false)}
+        student={waModalStudent}
+        teacherName={teacherName}
+        activeClass={activeClass}
+        kkm={kkm}
+      />
       <QuickAddModal
         isOpen={isQuickAddOpen}
         onClose={() => setIsQuickAddOpen(false)}
@@ -707,12 +733,14 @@ export default function App() {
         activeClass={activeClass}
         classList={classList}
         academicPeriod={academicPeriod}
+        kkm={kkm}
         students={students}
         onSelectClass={handleSelectClass}
         onAddClass={handleAddClass}
         onRenameClass={handleRenameClass}
         onDeleteClass={handleDeleteClass}
         onUpdateAcademicPeriod={setAcademicPeriod}
+        onUpdateKKM={(newKkm) => { setKkm(newKkm); localStorage.setItem('antigravity_kkm', String(newKkm)); }}
         onRestoreData={handleRestoreData}
       />
 

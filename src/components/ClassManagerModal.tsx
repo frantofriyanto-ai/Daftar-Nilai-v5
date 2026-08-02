@@ -9,12 +9,14 @@ interface ClassManagerModalProps {
   activeClass: string;
   classList: string[];
   academicPeriod: string;
+  kkm?: number;
   students: Student[];
   onSelectClass: (className: string) => void;
   onAddClass: (className: string) => void;
   onRenameClass: (oldName: string, newName: string) => void;
   onDeleteClass: (className: string) => void;
   onUpdateAcademicPeriod: (period: string) => void;
+  onUpdateKKM?: (kkm: number) => void;
   onRestoreData: (backupPayload: any) => void;
 }
 
@@ -24,12 +26,14 @@ export const ClassManagerModal: React.FC<ClassManagerModalProps> = ({
   activeClass,
   classList,
   academicPeriod,
+  kkm = 75,
   students,
   onSelectClass,
   onAddClass,
   onRenameClass,
   onDeleteClass,
   onUpdateAcademicPeriod,
+  onUpdateKKM,
   onRestoreData,
 }) => {
   const [newClassName, setNewClassName] = useState('');
@@ -37,6 +41,7 @@ export const ClassManagerModal: React.FC<ClassManagerModalProps> = ({
   const [editInputValue, setEditInputValue] = useState('');
   const [editingPeriod, setEditingPeriod] = useState(false);
   const [inputPeriodValue, setInputPeriodValue] = useState(academicPeriod);
+  const [inputKkmValue, setInputKkmValue] = useState(kkm);
   const [restoreMessage, setRestoreMessage] = useState<string | null>(null);
 
   if (!isOpen) return null;
@@ -185,46 +190,63 @@ export const ClassManagerModal: React.FC<ClassManagerModalProps> = ({
             </span>
           </div>
 
-          {/* Academic Period Edit */}
-          <div className="space-y-2">
-            <label className="text-xs font-bold text-slate-700 flex items-center justify-between">
-              <span>Semester & Tahun Ajaran</span>
-              {!editingPeriod && (
-                <button
-                  onClick={() => { setInputPeriodValue(academicPeriod); setEditingPeriod(true); }}
-                  className="text-xs text-indigo-600 hover:text-indigo-800 font-semibold cursor-pointer"
-                >
-                  Ubah Periode
-                </button>
+          {/* Academic Period & KKM Settings */}
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+            <div className="space-y-2">
+              <label className="text-xs font-bold text-slate-700 flex items-center justify-between">
+                <span>Semester & Tahun Ajaran</span>
+                {!editingPeriod && (
+                  <button
+                    onClick={() => { setInputPeriodValue(academicPeriod); setEditingPeriod(true); }}
+                    className="text-xs text-indigo-600 hover:text-indigo-800 font-semibold cursor-pointer"
+                  >
+                    Ubah
+                  </button>
+                )}
+              </label>
+              {editingPeriod ? (
+                <div className="flex items-center gap-1.5">
+                  <input
+                    type="text"
+                    value={inputPeriodValue}
+                    onChange={(e) => setInputPeriodValue(e.target.value)}
+                    placeholder="Semester 1 (2024/2025)"
+                    className="flex-1 text-xs px-2.5 py-1.5 bg-slate-50 border border-indigo-300 rounded-lg focus:outline-hidden focus:ring-2 focus:ring-indigo-500/20 font-semibold text-slate-800"
+                  />
+                  <button
+                    onClick={handleSavePeriod}
+                    className="px-2.5 py-1.5 bg-indigo-600 text-white text-xs font-bold rounded-lg hover:bg-indigo-700 cursor-pointer"
+                  >
+                    OK
+                  </button>
+                </div>
+              ) : (
+                <div className="text-xs font-semibold text-slate-700 bg-slate-100/70 px-3 py-2 rounded-lg border border-slate-200">
+                  {academicPeriod}
+                </div>
               )}
-            </label>
-            {editingPeriod ? (
+            </div>
+
+            <div className="space-y-2">
+              <label className="text-xs font-bold text-slate-700 flex items-center justify-between">
+                <span>Standar KKM Sekolah</span>
+                <span className="text-[10px] text-emerald-600 font-bold">Ketuntasan Minimal</span>
+              </label>
               <div className="flex items-center gap-2">
                 <input
-                  type="text"
-                  value={inputPeriodValue}
-                  onChange={(e) => setInputPeriodValue(e.target.value)}
-                  placeholder="Contoh: Semester 1 (2024/2025)"
-                  className="flex-1 text-xs px-3 py-2 bg-slate-50 border border-indigo-300 rounded-lg focus:outline-hidden focus:ring-2 focus:ring-indigo-500/20 font-semibold text-slate-800"
+                  type="number"
+                  min="50"
+                  max="100"
+                  value={inputKkmValue}
+                  onChange={(e) => {
+                    const val = Number(e.target.value);
+                    setInputKkmValue(val);
+                    if (onUpdateKKM) onUpdateKKM(val);
+                  }}
+                  className="w-full text-xs font-bold text-slate-800 px-3 py-1.5 bg-emerald-50/60 border border-emerald-300 rounded-lg focus:ring-2 focus:ring-emerald-500/20"
                 />
-                <button
-                  onClick={handleSavePeriod}
-                  className="px-3 py-2 bg-indigo-600 text-white text-xs font-bold rounded-lg hover:bg-indigo-700 cursor-pointer"
-                >
-                  Simpan
-                </button>
-                <button
-                  onClick={() => setEditingPeriod(false)}
-                  className="px-3 py-2 bg-slate-200 text-slate-700 text-xs font-semibold rounded-lg hover:bg-slate-300 cursor-pointer"
-                >
-                  Batal
-                </button>
               </div>
-            ) : (
-              <div className="text-xs font-semibold text-slate-700 bg-slate-100/70 px-3.5 py-2 rounded-lg border border-slate-200">
-                {academicPeriod}
-              </div>
-            )}
+            </div>
           </div>
 
           {/* Class List & Selection */}

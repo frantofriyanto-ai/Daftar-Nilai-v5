@@ -1,13 +1,15 @@
 import React, { useState } from 'react';
-import { Student, SubjectGradeBreakdown, getSubjectGradeBreakdown, getSubjectFinalScore } from '../types';
-import { Search, Edit2, Check, Download, FileText, ArrowUpDown, Percent, Calculator, Award, Sliders, X, GitCompare, Plus, Users, CheckSquare, Square, Sparkles, Target, Eye, EyeOff, Focus, Filter, FileSpreadsheet, RefreshCw, Zap } from 'lucide-react';
+import { Student, SubjectGradeBreakdown, getSubjectGradeBreakdown, getSubjectFinalScore, getKKMStatus } from '../types';
+import { Search, Edit2, Check, Download, FileText, ArrowUpDown, Percent, Calculator, Award, Sliders, X, GitCompare, Plus, Users, CheckSquare, Square, Sparkles, Target, Eye, EyeOff, Focus, Filter, FileSpreadsheet, RefreshCw, Zap, MessageCircle } from 'lucide-react';
 import { Radar, RadarChart, PolarGrid, PolarAngleAxis, PolarRadiusAxis, ResponsiveContainer, Legend, Tooltip } from 'recharts';
 
 interface StudentDataViewProps {
   students: Student[];
   onUpdateStudent: (updated: Student) => void;
   onOpenExportModal: (student?: Student) => void;
+  onOpenWhatsAppModal?: (student: Student) => void;
   activeClass?: string;
+  kkm?: number;
   webAppUrl?: string;
   isSyncing?: boolean;
   lastSyncTime?: string;
@@ -38,7 +40,9 @@ export const StudentDataView: React.FC<StudentDataViewProps> = ({
   students,
   onUpdateStudent,
   onOpenExportModal,
+  onOpenWhatsAppModal,
   activeClass = 'Kelas 12-A',
+  kkm = 75,
   webAppUrl = '',
   isSyncing = false,
   lastSyncTime = '',
@@ -572,12 +576,33 @@ export const StudentDataView: React.FC<StudentDataViewProps> = ({
 
                     {/* RATA-RATA */}
                     <td className="py-3 px-3 text-center bg-blue-50/50 font-bold text-blue-900">
-                      {currentAvg}
+                      <div className="flex flex-col items-center justify-center gap-0.5">
+                        <span className="font-extrabold text-xs">{currentAvg}</span>
+                        {(() => {
+                          const kkmObj = getKKMStatus(Number(currentAvg), kkm);
+                          return (
+                            <span className={`text-[9px] font-extrabold px-1.5 py-0.2 rounded border ${kkmObj.badgeClass}`}>
+                              {kkmObj.label}
+                            </span>
+                          );
+                        })()}
+                      </div>
                     </td>
 
                     {/* Action buttons */}
                     <td className="py-3 px-4 text-center">
                       <div className="flex items-center justify-center gap-1.5">
+                        {onOpenWhatsAppModal && (
+                          <button
+                            onClick={() => onOpenWhatsAppModal(s)}
+                            className="px-2 py-1 text-emerald-900 bg-emerald-100/80 hover:bg-emerald-200/90 rounded-lg transition-colors border border-emerald-300 flex items-center gap-1 cursor-pointer shadow-2xs"
+                            title="Kirim Catatan Bimbingan / Laporan Nilai via WhatsApp ke Orang Tua"
+                          >
+                            <MessageCircle className="w-3.5 h-3.5 text-emerald-700" />
+                            <span className="text-[10px] font-bold">WA Wali</span>
+                          </button>
+                        )}
+
                         <button
                           onClick={() => handleOpenBreakdownModal(s)}
                           className="px-2 py-1 text-indigo-700 bg-indigo-50 hover:bg-indigo-100 rounded-lg transition-colors border border-indigo-200 flex items-center gap-1 cursor-pointer shadow-2xs"
@@ -589,11 +614,11 @@ export const StudentDataView: React.FC<StudentDataViewProps> = ({
 
                         <button
                           onClick={() => onOpenExportModal(s)}
-                          className="px-2 py-1 text-emerald-800 bg-emerald-50 hover:bg-emerald-100 rounded-lg transition-colors border border-emerald-200 flex items-center gap-1 cursor-pointer shadow-2xs"
+                          className="px-2 py-1 text-slate-700 bg-slate-50 hover:bg-slate-100 rounded-lg transition-colors border border-slate-200 flex items-center gap-1 cursor-pointer shadow-2xs"
                           title="Cetak Rekap Individu & Rapor Laporan Orang Tua Siswa"
                         >
-                          <FileText className="w-3.5 h-3.5 text-emerald-600" />
-                          <span className="text-[10px] font-bold">Rapor Orang Tua</span>
+                          <FileText className="w-3.5 h-3.5 text-slate-600" />
+                          <span className="text-[10px] font-bold">Rapor</span>
                         </button>
                       </div>
                     </td>

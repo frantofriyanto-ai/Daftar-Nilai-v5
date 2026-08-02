@@ -87,6 +87,8 @@ export interface Student {
   id: string;
   nis: string;
   name: string;
+  parentName?: string;
+  parentPhone?: string;
   avatarInitials: string;
   gender: 'L' | 'P';
   attendanceRate: number; // percentage, e.g. 95
@@ -102,6 +104,17 @@ export interface Student {
   };
   notes?: string;
   updatedAt: string;
+}
+
+export function getKKMStatus(score: number, kkm = 75) {
+  const isPass = score >= kkm;
+  return {
+    isPass,
+    label: isPass ? 'Tuntas' : 'Remidial',
+    badgeClass: isPass 
+      ? 'bg-emerald-100 text-emerald-800 border-emerald-300' 
+      : 'bg-rose-100 text-rose-800 border-rose-300 shadow-2xs'
+  };
 }
 
 export interface GradeLog {
