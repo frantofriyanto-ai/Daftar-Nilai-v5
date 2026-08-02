@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { X, Printer, Download, FileSpreadsheet, FileCheck, Eye, ArrowLeft, CheckCircle2, Upload, Trash2, Building2, School } from 'lucide-react';
+import { X, Printer, Download, FileSpreadsheet, FileCheck, Eye, ArrowLeft, CheckCircle2, Upload, Trash2, Building2, School, SlidersHorizontal, Check } from 'lucide-react';
 import { Student, getSubjectFinalScore } from '../types';
 
 interface ExportModalProps {
@@ -41,6 +41,40 @@ export const ExportModal: React.FC<ExportModalProps> = ({
 }) => {
   const [viewMode, setViewMode] = useState<'options' | 'preview'>('options');
 
+  // Formal Kop Surat & Document Header options persisted in localStorage
+  const [showFormalHeader, setShowFormalHeader] = useState<boolean>(() => {
+    const val = localStorage.getItem('antigravity_show_formal_header');
+    return val !== null ? val === 'true' : true;
+  });
+
+  const [districtName, setDistrictName] = useState<string>(() => {
+    return localStorage.getItem('antigravity_district_name') || 'PEMERINTAH KABUPATEN BANDUNG BARAT / DINAS PENDIDIKAN';
+  });
+
+  const [schoolName, setSchoolName] = useState<string>(() => {
+    return localStorage.getItem('antigravity_school_name') || 'SD NEGERI GUDANG KAHURIPAN';
+  });
+
+  const [schoolAddress, setSchoolAddress] = useState<string>(() => {
+    return localStorage.getItem('antigravity_school_address') || 'Jl. Raya Lembang No. 14 • Desa Gudangkahuripan Kec. Lembang • Email: sdngudangkahuripan@gmail.com';
+  });
+
+  const [periodText, setPeriodText] = useState<string>(() => {
+    return localStorage.getItem('antigravity_period_text') || academicPeriod;
+  });
+
+  const [headmasterName, setHeadmasterName] = useState<string>(() => {
+    return localStorage.getItem('antigravity_headmaster_name') || 'Iman Kosdiana, M.Pd.';
+  });
+
+  const [headmasterNip, setHeadmasterNip] = useState<string>(() => {
+    return localStorage.getItem('antigravity_headmaster_nip') || 'NIP. 19720113 199603 1 001';
+  });
+
+  const [teacherNip, setTeacherNip] = useState<string>(() => {
+    return localStorage.getItem('antigravity_teacher_nip') || 'NIP. 19820412 200801 1 009';
+  });
+
   // Logo state persisted in localStorage
   const [logoDinas, setLogoDinas] = useState<string | null>(() => {
     return localStorage.getItem('antigravity_logo_dinas') || null;
@@ -49,6 +83,11 @@ export const ExportModal: React.FC<ExportModalProps> = ({
   const [logoSekolah, setLogoSekolah] = useState<string | null>(() => {
     return localStorage.getItem('antigravity_logo_sekolah') || null;
   });
+
+  const handleUpdateSetting = (key: string, value: string | boolean, setter: (v: any) => void) => {
+    setter(value);
+    localStorage.setItem(`antigravity_${key}`, String(value));
+  };
 
   const handleUploadLogoDinas = (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
@@ -151,42 +190,45 @@ export const ExportModal: React.FC<ExportModalProps> = ({
     }
   };
 
-  const renderKopSurat = () => (
-    <div className="border-b-4 border-double border-slate-900 pb-3 mb-5 flex items-center justify-between text-center gap-4">
-      {/* Logo Dinas (Left) */}
-      <div className="w-20 h-20 shrink-0 flex items-center justify-center">
-        {logoDinas ? (
-          <img src={logoDinas} alt="Logo Dinas" className="max-h-20 max-w-20 object-contain" />
-        ) : (
-          <div className="w-16 h-16 rounded-lg border border-dashed border-slate-300 bg-slate-50 flex flex-col items-center justify-center p-1 no-print">
-            <Building2 className="w-5 h-5 text-slate-400" />
-            <span className="text-[9px] text-slate-400 font-semibold text-center leading-none mt-1">Logo Dinas</span>
-          </div>
-        )}
-      </div>
+  const renderKopSurat = () => {
+    if (!showFormalHeader) return null;
+    return (
+      <div className="border-b-4 border-double border-slate-900 pb-3 mb-5 flex items-center justify-between text-center gap-4">
+        {/* Logo Dinas (Left) */}
+        <div className="w-20 h-20 shrink-0 flex items-center justify-center">
+          {logoDinas ? (
+            <img src={logoDinas} alt="Logo Dinas" className="max-h-20 max-w-20 object-contain" />
+          ) : (
+            <div className="w-16 h-16 rounded-lg border border-dashed border-slate-400 bg-slate-50 flex flex-col items-center justify-center p-1 text-slate-500">
+              <Building2 className="w-6 h-6 text-slate-500" />
+              <span className="text-[8px] font-bold text-slate-600 text-center uppercase tracking-tighter mt-0.5">Logo Pemkab</span>
+            </div>
+          )}
+        </div>
 
-      {/* Kop Text (Center) */}
-      <div className="flex-1 text-center px-2">
-        <p className="text-xs font-bold tracking-widest text-slate-700 uppercase">PEMERINTAH KABUPATEN BANDUNG BARAT / DINAS PENDIDIKAN</p>
-        <h2 className="text-xl font-extrabold text-slate-950 uppercase tracking-tight mt-0.5">SD NEGERI GUDANG KAHURIPAN</h2>
-        <p className="text-[11px] text-slate-600 mt-1">
-          Jl. Raya Lembang No. 14 • Desa Gudangkahuripan Kec. Lembang • Email: sdngudangkahuripan@gmail.com
-        </p>
-      </div>
+        {/* Kop Text (Center) */}
+        <div className="flex-1 text-center px-2">
+          <p className="text-xs font-bold tracking-widest text-slate-800 uppercase">{districtName}</p>
+          <h2 className="text-xl font-extrabold text-slate-950 uppercase tracking-tight mt-0.5">{schoolName}</h2>
+          <p className="text-[11px] text-slate-700 mt-1 font-medium leading-tight">
+            {schoolAddress}
+          </p>
+        </div>
 
-      {/* Logo Sekolah (Right) */}
-      <div className="w-20 h-20 shrink-0 flex items-center justify-center">
-        {logoSekolah ? (
-          <img src={logoSekolah} alt="Logo Sekolah" className="max-h-20 max-w-20 object-contain" />
-        ) : (
-          <div className="w-16 h-16 rounded-lg border border-dashed border-slate-300 bg-slate-50 flex flex-col items-center justify-center p-1 no-print">
-            <School className="w-5 h-5 text-slate-400" />
-            <span className="text-[9px] text-slate-400 font-semibold text-center leading-none mt-1">Logo Sekolah</span>
-          </div>
-        )}
+        {/* Logo Sekolah (Right) */}
+        <div className="w-20 h-20 shrink-0 flex items-center justify-center">
+          {logoSekolah ? (
+            <img src={logoSekolah} alt="Logo Sekolah" className="max-h-20 max-w-20 object-contain" />
+          ) : (
+            <div className="w-16 h-16 rounded-lg border border-dashed border-slate-400 bg-slate-50 flex flex-col items-center justify-center p-1 text-slate-500">
+              <School className="w-6 h-6 text-slate-500" />
+              <span className="text-[8px] font-bold text-slate-600 text-center uppercase tracking-tighter mt-0.5">Logo Sekolah</span>
+            </div>
+          )}
+        </div>
       </div>
-    </div>
-  );
+    );
+  };
 
   return (
     <div className="fixed inset-0 z-50 bg-slate-900/70 backdrop-blur-xs flex items-center justify-center p-2 sm:p-4 overflow-y-auto modal-backdrop-overlay">
@@ -202,7 +244,7 @@ export const ExportModal: React.FC<ExportModalProps> = ({
                 {singleStudent ? `Cetak Rapor Siswa: ${singleStudent.name}` : `Cetak Rekap Laporan Nilai ${activeClass}`}
               </h3>
               <p className="text-xs text-indigo-200 mt-0.5">
-                {activeClass} • Semester 1 (2025/2026)
+                {activeClass} • {periodText}
               </p>
             </div>
           </div>
@@ -239,7 +281,7 @@ export const ExportModal: React.FC<ExportModalProps> = ({
         <div className="flex-1 overflow-y-auto p-4 sm:p-6 bg-slate-100">
           {viewMode === 'options' ? (
             /* Options Mode View */
-            <div className="space-y-6 no-print max-w-2xl mx-auto">
+            <div className="space-y-6 no-print max-w-3xl mx-auto">
               {/* Document Info Card */}
               <div className="bg-white p-5 rounded-xl border border-slate-200 shadow-xs space-y-3">
                 <div className="flex items-center justify-between border-b border-slate-100 pb-3">
@@ -254,8 +296,8 @@ export const ExportModal: React.FC<ExportModalProps> = ({
                     <span className="font-bold text-slate-800">{activeClass}</span>
                   </div>
                   <div>
-                    <span className="text-slate-400 block font-medium">Tahun Ajaran</span>
-                    <span className="font-bold text-slate-800">Semester 1 (2025/2026)</span>
+                    <span className="text-slate-400 block font-medium">Tahun Ajaran / Periode</span>
+                    <span className="font-bold text-slate-800">{periodText}</span>
                   </div>
                   <div>
                     <span className="text-slate-400 block font-medium">Jumlah Dokumen / Siswa</span>
@@ -277,7 +319,7 @@ export const ExportModal: React.FC<ExportModalProps> = ({
                     </div>
                     <div>
                       <h4 className="text-sm font-bold text-slate-800">Upload Logo Kop Surat (Cetak PDF)</h4>
-                      <p className="text-xs text-slate-500">Logo akan tampil di sisi kiri (Dinas) dan kanan (Sekolah) pada Kop Surat</p>
+                      <p className="text-xs text-slate-500">Logo akan tampil di sisi kiri (Dinas) dan kanan (Sekolah) pada Kop Surat PDF</p>
                     </div>
                   </div>
                 </div>
@@ -345,6 +387,96 @@ export const ExportModal: React.FC<ExportModalProps> = ({
                         </button>
                       )}
                     </div>
+                  </div>
+                </div>
+              </div>
+
+              {/* Formal Header & Signature Settings Panel */}
+              <div className="bg-white p-5 rounded-xl border border-slate-200 shadow-xs space-y-4">
+                <div className="flex items-center justify-between border-b border-slate-100 pb-3">
+                  <div className="flex items-center gap-2.5">
+                    <div className="p-2 bg-purple-50 text-purple-600 rounded-lg">
+                      <SlidersHorizontal className="w-4 h-4" />
+                    </div>
+                    <div>
+                      <h4 className="text-sm font-bold text-slate-800">Pengaturan Header Resmi & Tanda Tangan</h4>
+                      <p className="text-xs text-slate-500">Sesuaikan identitas sekolah, periode akademik, dan data NIP pejabat untuk cetak PDF</p>
+                    </div>
+                  </div>
+                  <label className="flex items-center gap-2 cursor-pointer text-xs font-bold text-slate-700 bg-slate-100 px-3 py-1.5 rounded-lg border border-slate-200 hover:bg-slate-200 transition-colors">
+                    <input
+                      type="checkbox"
+                      checked={showFormalHeader}
+                      onChange={(e) => handleUpdateSetting('show_formal_header', e.target.checked, setShowFormalHeader)}
+                      className="rounded border-slate-300 text-purple-600 focus:ring-purple-500"
+                    />
+                    <span>Tampilkan Kop Surat Resmi</span>
+                  </label>
+                </div>
+
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 text-xs">
+                  <div>
+                    <label className="block font-semibold text-slate-700 mb-1">Nama Instansi / Dinas (Kop Atas)</label>
+                    <input
+                      type="text"
+                      value={districtName}
+                      onChange={(e) => handleUpdateSetting('district_name', e.target.value, setDistrictName)}
+                      className="w-full px-3 py-1.5 border border-slate-300 rounded-lg text-slate-800 font-medium focus:ring-2 focus:ring-purple-500 focus:border-purple-500 outline-none"
+                    />
+                  </div>
+                  <div>
+                    <label className="block font-semibold text-slate-700 mb-1">Nama Sekolah / Satuan Pendidikan</label>
+                    <input
+                      type="text"
+                      value={schoolName}
+                      onChange={(e) => handleUpdateSetting('school_name', e.target.value, setSchoolName)}
+                      className="w-full px-3 py-1.5 border border-slate-300 rounded-lg text-slate-800 font-extrabold focus:ring-2 focus:ring-purple-500 focus:border-purple-500 outline-none"
+                    />
+                  </div>
+                  <div className="sm:col-span-2">
+                    <label className="block font-semibold text-slate-700 mb-1">Alamat Sekolah & Kontak (Kop Bawah)</label>
+                    <input
+                      type="text"
+                      value={schoolAddress}
+                      onChange={(e) => handleUpdateSetting('school_address', e.target.value, setSchoolAddress)}
+                      className="w-full px-3 py-1.5 border border-slate-300 rounded-lg text-slate-800 font-medium focus:ring-2 focus:ring-purple-500 focus:border-purple-500 outline-none"
+                    />
+                  </div>
+                  <div>
+                    <label className="block font-semibold text-slate-700 mb-1">Periode Akademik / Semester</label>
+                    <input
+                      type="text"
+                      value={periodText}
+                      onChange={(e) => handleUpdateSetting('period_text', e.target.value, setPeriodText)}
+                      className="w-full px-3 py-1.5 border border-slate-300 rounded-lg text-slate-800 font-semibold focus:ring-2 focus:ring-purple-500 focus:border-purple-500 outline-none"
+                    />
+                  </div>
+                  <div>
+                    <label className="block font-semibold text-slate-700 mb-1">NIP Wali Kelas ({teacherName})</label>
+                    <input
+                      type="text"
+                      value={teacherNip}
+                      onChange={(e) => handleUpdateSetting('teacher_nip', e.target.value, setTeacherNip)}
+                      className="w-full px-3 py-1.5 border border-slate-300 rounded-lg text-slate-800 font-mono focus:ring-2 focus:ring-purple-500 focus:border-purple-500 outline-none"
+                    />
+                  </div>
+                  <div>
+                    <label className="block font-semibold text-slate-700 mb-1">Nama Kepala Sekolah</label>
+                    <input
+                      type="text"
+                      value={headmasterName}
+                      onChange={(e) => handleUpdateSetting('headmaster_name', e.target.value, setHeadmasterName)}
+                      className="w-full px-3 py-1.5 border border-slate-300 rounded-lg text-slate-800 font-bold focus:ring-2 focus:ring-purple-500 focus:border-purple-500 outline-none"
+                    />
+                  </div>
+                  <div>
+                    <label className="block font-semibold text-slate-700 mb-1">NIP Kepala Sekolah</label>
+                    <input
+                      type="text"
+                      value={headmasterNip}
+                      onChange={(e) => handleUpdateSetting('headmaster_nip', e.target.value, setHeadmasterNip)}
+                      className="w-full px-3 py-1.5 border border-slate-300 rounded-lg text-slate-800 font-mono focus:ring-2 focus:ring-purple-500 focus:border-purple-500 outline-none"
+                    />
                   </div>
                 </div>
               </div>
@@ -443,7 +575,7 @@ export const ExportModal: React.FC<ExportModalProps> = ({
                     <p className="text-xs font-bold text-slate-700 mt-1">
                       (Rekap Laporan Untuk Orang Tua / Wali Siswa)
                     </p>
-                    <p className="text-xs text-slate-600 font-medium mt-0.5">{academicPeriod}</p>
+                    <p className="text-xs text-slate-600 font-medium mt-0.5">{periodText}</p>
                   </div>
 
                   {/* Student Identity Grid */}
@@ -549,21 +681,21 @@ export const ExportModal: React.FC<ExportModalProps> = ({
                   {/* Signatures */}
                   <div className="mt-12 pt-4 border-t border-slate-300 grid grid-cols-3 text-center text-xs text-slate-900 gap-4">
                     <div>
-                      <p className="mb-14">Orang Tua / Wali Siswa</p>
+                      <p className="mb-14 font-semibold text-slate-800">Orang Tua / Wali Siswa</p>
                       <p className="font-bold border-b border-slate-900 inline-block px-8">( .................................... )</p>
                     </div>
 
                     <div>
-                      <p className="mb-14">Wali Kelas</p>
-                      <p className="font-bold underline">{teacherName}</p>
-                      <p className="text-[10px] text-slate-600">NIP. 19820412 200801 1 009</p>
+                      <p className="mb-14 font-semibold text-slate-800">Wali Kelas</p>
+                      <p className="font-bold underline text-slate-950">{teacherName}</p>
+                      <p className="text-[10px] text-slate-600 font-mono mt-0.5">{teacherNip}</p>
                     </div>
 
                     <div>
                       <p className="text-[11px] text-slate-600 mb-1">Lembang, {currentDateStr}</p>
-                      <p className="mb-12">Kepala Sekolah</p>
-                      <p className="font-bold underline">Iman Kosdiana, M.Pd.</p>
-                      <p className="text-[10px] text-slate-600">NIP. 197201131996031001</p>
+                      <p className="mb-12 font-semibold text-slate-800">Kepala Sekolah</p>
+                      <p className="font-bold underline text-slate-950">{headmasterName}</p>
+                      <p className="text-[10px] text-slate-600 font-mono mt-0.5">{headmasterNip}</p>
                     </div>
                   </div>
                 </div>
@@ -579,7 +711,7 @@ export const ExportModal: React.FC<ExportModalProps> = ({
                       <h3 className="text-sm font-extrabold uppercase text-slate-900 tracking-wider">
                         REKAPITULASI LAPORAN HASIL BELAJAR AKADEMIK KELAS
                       </h3>
-                      <p className="text-slate-600 font-medium">Kelas: <span className="font-bold text-slate-900">{activeClass}</span> • Semester 1 (2025/2026)</p>
+                      <p className="text-slate-600 font-medium">Kelas: <span className="font-bold text-slate-900">{activeClass}</span> • {periodText}</p>
                     </div>
                     <div className="text-right text-slate-700 font-medium">
                       <p>Wali Kelas: <span className="font-bold">{teacherName}</span></p>
@@ -648,16 +780,16 @@ export const ExportModal: React.FC<ExportModalProps> = ({
                   {/* Class Signatures */}
                   <div className="mt-8 pt-4 border-t border-slate-300 grid grid-cols-2 text-center text-xs text-slate-900 gap-8">
                     <div>
-                      <p className="mb-14">Mengetahui,<br/>Wali Kelas {activeClass}</p>
-                      <p className="font-bold underline">{teacherName}</p>
-                      <p className="text-[10px] text-slate-600">NIP. 19820412 200801 1 009</p>
+                      <p className="mb-14 font-semibold text-slate-800">Mengetahui,<br/>Wali Kelas {activeClass}</p>
+                      <p className="font-bold underline text-slate-950">{teacherName}</p>
+                      <p className="text-[10px] text-slate-600 font-mono mt-0.5">{teacherNip}</p>
                     </div>
 
                     <div>
                       <p className="text-[11px] text-slate-600 mb-1">Lembang, {currentDateStr}</p>
-                      <p className="mb-12">Kepala Sekolah</p>
-                      <p className="font-bold underline">Iman Kosdiana, M.Pd.</p>
-                      <p className="text-[10px] text-slate-600">NIP. 197201131996031001</p>
+                      <p className="mb-12 font-semibold text-slate-800">Kepala Sekolah</p>
+                      <p className="font-bold underline text-slate-950">{headmasterName}</p>
+                      <p className="text-[10px] text-slate-600 font-mono mt-0.5">{headmasterNip}</p>
                     </div>
                   </div>
                 </div>

@@ -2,11 +2,14 @@
 
 @media print {
   /* Hide all non-printable UI elements */
-  body, html {
+  body, html, #root {
     background: #ffffff !important;
     color: #000000 !important;
     margin: 0 !important;
     padding: 0 !important;
+    height: auto !important;
+    min-height: auto !important;
+    overflow: visible !important;
     -webkit-print-color-adjust: exact !important;
     print-color-adjust: exact !important;
   }
@@ -16,9 +19,37 @@
   aside,
   header,
   nav,
-  button,
-  .modal-backdrop-overlay {
+  button:not(.printable-button) {
     display: none !important;
+  }
+
+  /* Ensure modal backdrop and printable area are displayed properly */
+  .modal-backdrop-overlay {
+    position: static !important;
+    inset: auto !important;
+    background: transparent !important;
+    backdrop-filter: none !important;
+    padding: 0 !important;
+    margin: 0 !important;
+    display: block !important;
+    overflow: visible !important;
+    height: auto !important;
+    width: 100% !important;
+    min-height: auto !important;
+  }
+
+  .modal-backdrop-overlay > div {
+    position: static !important;
+    box-shadow: none !important;
+    border: none !important;
+    border-radius: 0 !important;
+    max-width: 100% !important;
+    max-height: none !important;
+    height: auto !important;
+    overflow: visible !important;
+    padding: 0 !important;
+    margin: 0 !important;
+    background: transparent !important;
   }
 
   /* Force printable container to fill print page */
@@ -41,12 +72,18 @@
   .printable-document table {
     width: 100% !important;
     border-collapse: collapse !important;
+    page-break-inside: auto;
+  }
+
+  .printable-document tr {
+    page-break-inside: avoid;
+    page-break-after: auto;
   }
 
   .printable-document th, 
   .printable-document td {
     border: 1px solid #000000 !important;
-    padding: 6px 8px !important;
+    padding: 5px 7px !important;
     color: #000000 !important;
     font-size: 11px !important;
   }
@@ -54,6 +91,8 @@
   .printable-document th {
     background-color: #f1f5f9 !important;
     font-weight: bold !important;
+    -webkit-print-color-adjust: exact !important;
+    print-color-adjust: exact !important;
   }
 
   .page-break {
@@ -63,6 +102,6 @@
 
   @page {
     size: A4 portrait;
-    margin: 12mm 15mm;
+    margin: 10mm 12mm 10mm 12mm;
   }
 }

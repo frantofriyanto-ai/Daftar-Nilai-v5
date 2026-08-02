@@ -1,5 +1,5 @@
 import React from 'react';
-import { Search, Bell, Settings, Plus, FileSpreadsheet, RefreshCw } from 'lucide-react';
+import { Search, Bell, Plus, FileSpreadsheet, RefreshCw } from 'lucide-react';
 
 interface TopbarProps {
   searchQuery: string;
@@ -52,11 +52,6 @@ export const Topbar: React.FC<TopbarProps> = ({
         <button className="relative p-2 text-slate-500 hover:text-slate-700 hover:bg-slate-100 rounded-lg transition-colors">
           <Bell className="w-4 h-4" />
           <span className="absolute top-1.5 right-1.5 w-2 h-2 bg-rose-500 rounded-full ring-2 ring-white"></span>
-        </button>
-
-        {/* Settings Gear */}
-        <button className="p-2 text-slate-500 hover:text-slate-700 hover:bg-slate-100 rounded-lg transition-colors">
-          <Settings className="w-4 h-4" />
         </button>
 
         {/* Quick Add Button */}
