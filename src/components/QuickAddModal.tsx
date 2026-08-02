@@ -89,24 +89,24 @@ export const QuickAddModal: React.FC<QuickAddModalProps> = ({
   };
 
   return (
-    <div className="fixed inset-0 z-50 bg-slate-900/60 backdrop-blur-xs flex items-center justify-center p-4">
-      <div className="bg-white w-full max-w-lg rounded-2xl shadow-2xl border border-slate-200 overflow-hidden flex flex-col">
+    <div className="fixed inset-0 z-50 bg-slate-900/60 backdrop-blur-xs flex items-center justify-center p-2 sm:p-4 overflow-y-auto">
+      <div className="bg-white w-full max-w-lg rounded-2xl shadow-2xl border border-slate-200 overflow-hidden flex flex-col max-h-[92vh] my-auto">
         {/* Header */}
-        <div className="px-6 py-4 bg-[#4C4B7C] text-white flex items-center justify-between">
-          <h3 className="text-base font-bold flex items-center gap-2">
-            <Award className="w-5 h-5 text-amber-300" />
+        <div className="px-4 sm:px-6 py-3.5 sm:py-4 bg-[#4C4B7C] text-white flex items-center justify-between shrink-0">
+          <h3 className="text-sm sm:text-base font-bold flex items-center gap-2">
+            <Award className="w-5 h-5 text-amber-300 shrink-0" />
             <span>Tambah Data / Nilai Siswa</span>
           </h3>
           <button
             onClick={onClose}
-            className="p-1.5 rounded-lg text-indigo-200 hover:text-white hover:bg-white/10 transition-colors"
+            className="p-1.5 rounded-lg text-indigo-200 hover:text-white hover:bg-white/10 transition-colors shrink-0 cursor-pointer"
           >
             <X className="w-5 h-5" />
           </button>
         </div>
 
         {/* Mode Selector */}
-        <div className="flex border-b border-slate-200 bg-slate-50 p-2 gap-2 text-xs font-semibold">
+        <div className="flex border-b border-slate-200 bg-slate-50 p-2 gap-2 text-xs font-semibold shrink-0">
           <button
             onClick={() => setMode('updateGrade')}
             className={`flex-1 py-2 rounded-lg transition-all ${
@@ -130,7 +130,7 @@ export const QuickAddModal: React.FC<QuickAddModalProps> = ({
         </div>
 
         {/* Form Body */}
-        <div className="p-6">
+        <div className="p-4 sm:p-6 overflow-y-auto flex-1 min-h-0">
           {mode === 'updateGrade' ? (
             <form onSubmit={handleGradeSubmit} className="space-y-4">
               <div>

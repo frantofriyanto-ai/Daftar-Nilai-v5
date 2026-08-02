@@ -152,29 +152,29 @@ export const ClassManagerModal: React.FC<ClassManagerModalProps> = ({
   };
 
   return (
-    <div className="fixed inset-0 z-50 bg-slate-900/60 backdrop-blur-xs flex items-center justify-center p-4">
-      <div className="bg-white w-full max-w-lg rounded-2xl shadow-2xl border border-slate-200 overflow-hidden flex flex-col animate-in fade-in zoom-in-95 duration-150">
+    <div className="fixed inset-0 z-50 bg-slate-900/60 backdrop-blur-xs flex items-center justify-center p-2 sm:p-4 overflow-y-auto">
+      <div className="bg-white w-full max-w-lg rounded-2xl shadow-2xl border border-slate-200 overflow-hidden flex flex-col max-h-[92vh] my-auto animate-in fade-in zoom-in-95 duration-150">
         {/* Header */}
-        <div className="px-6 py-4 bg-[#4B497B] text-white flex items-center justify-between">
-          <div className="flex items-center gap-3">
-            <div className="p-2.5 bg-white/10 rounded-xl">
+        <div className="px-4 sm:px-6 py-3.5 sm:py-4 bg-[#4B497B] text-white flex items-center justify-between shrink-0">
+          <div className="flex items-center gap-2.5 sm:gap-3">
+            <div className="p-2 sm:p-2.5 bg-white/10 rounded-xl shrink-0">
               <School className="w-5 h-5 text-indigo-200" />
             </div>
             <div>
-              <h3 className="text-base font-bold text-white tracking-tight">Kelola & Ubah Kelas</h3>
-              <p className="text-xs text-indigo-200 mt-0.5">Pilih, tambah, atau perbarui daftar kelas akademik</p>
+              <h3 className="text-sm sm:text-base font-bold text-white tracking-tight">Kelola & Ubah Kelas</h3>
+              <p className="text-[11px] sm:text-xs text-indigo-200 mt-0.5">Pilih, tambah, atau perbarui daftar kelas akademik</p>
             </div>
           </div>
           <button
             onClick={onClose}
-            className="p-1.5 rounded-lg text-indigo-200 hover:text-white hover:bg-white/10 transition-colors cursor-pointer"
+            className="p-1.5 rounded-lg text-indigo-200 hover:text-white hover:bg-white/10 transition-colors cursor-pointer shrink-0 ml-2"
           >
             <X className="w-5 h-5" />
           </button>
         </div>
 
         {/* Content Body */}
-        <div className="p-6 space-y-6 overflow-y-auto max-h-[75vh]">
+        <div className="p-4 sm:p-6 space-y-6 overflow-y-auto flex-1 min-h-0">
           {/* Active Class Highlight Card */}
           <div className="bg-indigo-50/70 border border-indigo-200/80 rounded-xl p-4 flex items-center justify-between">
             <div>

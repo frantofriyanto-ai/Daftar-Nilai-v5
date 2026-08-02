@@ -80,30 +80,30 @@ export const UserManagementModal: React.FC<UserManagementModalProps> = ({
   };
 
   return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center bg-slate-900/60 backdrop-blur-xs p-4 animate-in fade-in duration-200">
-      <div className="bg-white w-full max-w-2xl rounded-2xl shadow-2xl border border-slate-200 overflow-hidden flex flex-col max-h-[90vh]">
+    <div className="fixed inset-0 z-50 flex items-center justify-center bg-slate-900/60 backdrop-blur-xs p-2 sm:p-4 overflow-y-auto animate-in fade-in duration-200">
+      <div className="bg-white w-full max-w-2xl rounded-2xl shadow-2xl border border-slate-200 overflow-hidden flex flex-col max-h-[92vh] my-auto">
         {/* Modal Header */}
-        <div className="bg-gradient-to-r from-purple-800 via-indigo-800 to-purple-900 text-white p-5 px-6 flex items-center justify-between">
-          <div className="flex items-center gap-3">
-            <div className="w-10 h-10 rounded-xl bg-white/10 backdrop-blur-xs border border-white/20 flex items-center justify-center text-purple-200">
-              <ShieldCheck className="w-6 h-6" />
+        <div className="bg-gradient-to-r from-purple-800 via-indigo-800 to-purple-900 text-white p-4 sm:p-5 px-4 sm:px-6 flex items-center justify-between shrink-0">
+          <div className="flex items-center gap-2.5 sm:gap-3">
+            <div className="w-9 h-9 sm:w-10 sm:h-10 rounded-xl bg-white/10 backdrop-blur-xs border border-white/20 flex items-center justify-center text-purple-200 shrink-0">
+              <ShieldCheck className="w-5 h-5 sm:w-6 sm:h-6" />
             </div>
             <div>
-              <h3 className="font-bold text-lg text-white leading-tight">Kelola Pengguna & Peran Akses</h3>
-              <p className="text-xs text-purple-200 mt-0.5">Manajemen Akun Guru & Administrator Sekolah</p>
+              <h3 className="font-bold text-sm sm:text-lg text-white leading-tight">Kelola Pengguna & Peran Akses</h3>
+              <p className="text-[11px] sm:text-xs text-purple-200 mt-0.5 leading-tight">Manajemen Akun Guru & Administrator Sekolah</p>
             </div>
           </div>
 
           <button
             onClick={onClose}
-            className="p-1.5 text-purple-200 hover:text-white hover:bg-white/10 rounded-lg transition-colors cursor-pointer"
+            className="p-1.5 text-purple-200 hover:text-white hover:bg-white/10 rounded-lg transition-colors cursor-pointer shrink-0 ml-2"
           >
             <X className="w-5 h-5" />
           </button>
         </div>
 
         {/* Body Content */}
-        <div className="p-6 overflow-y-auto space-y-6">
+        <div className="p-4 sm:p-6 overflow-y-auto space-y-6 flex-1 min-h-0">
           {/* Google Sheets User Accounts Sync Card */}
           {webAppUrl && (
             <div className="bg-gradient-to-r from-indigo-900 to-purple-900 text-white p-3.5 px-4 rounded-xl shadow-xs flex items-center justify-between text-xs">

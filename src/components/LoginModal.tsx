@@ -98,23 +98,23 @@ export const LoginModal: React.FC<LoginModalProps> = ({
   };
 
   return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center bg-slate-900/60 backdrop-blur-xs p-4 animate-in fade-in duration-200">
-      <div className="bg-white w-full max-w-xl rounded-2xl shadow-2xl border border-slate-200 overflow-hidden flex flex-col max-h-[90vh]">
+    <div className="fixed inset-0 z-50 flex items-center justify-center bg-slate-900/60 backdrop-blur-xs p-2 sm:p-4 overflow-y-auto animate-in fade-in duration-200">
+      <div className="bg-white w-full max-w-xl rounded-2xl shadow-2xl border border-slate-200 overflow-hidden flex flex-col max-h-[92vh] my-auto">
         {/* Modal Header */}
-        <div className="bg-gradient-to-r from-[#4C4B7C] via-[#5B598E] to-[#4C4B7C] text-white p-5 px-6 flex items-center justify-between relative">
-          <div className="flex items-center gap-3">
-            <div className="w-10 h-10 rounded-xl bg-white/10 backdrop-blur-xs border border-white/20 flex items-center justify-center text-amber-300 shadow-xs">
-              <ShieldCheck className="w-6 h-6" />
+        <div className="bg-gradient-to-r from-[#4C4B7C] via-[#5B598E] to-[#4C4B7C] text-white p-4 sm:p-5 px-4 sm:px-6 flex items-center justify-between shrink-0">
+          <div className="flex items-center gap-2.5 sm:gap-3">
+            <div className="w-9 h-9 sm:w-10 sm:h-10 rounded-xl bg-white/10 backdrop-blur-xs border border-white/20 flex items-center justify-center text-amber-300 shadow-xs shrink-0">
+              <ShieldCheck className="w-5 h-5 sm:w-6 sm:h-6" />
             </div>
             <div>
-              <h3 className="font-bold text-lg text-white leading-tight">Masuk Sistem Informasi Akademik</h3>
-              <p className="text-xs text-indigo-200 mt-0.5">Otentikasi Akun Guru Pengajar & Administrator Kurikulum</p>
+              <h3 className="font-bold text-sm sm:text-lg text-white leading-tight">Masuk Sistem Informasi Akademik</h3>
+              <p className="text-[11px] sm:text-xs text-indigo-200 mt-0.5 leading-tight">Otentikasi Akun Guru Pengajar & Administrator Kurikulum</p>
             </div>
           </div>
 
           <button
             onClick={onClose}
-            className="p-1.5 text-indigo-200 hover:text-white hover:bg-white/10 rounded-lg transition-colors cursor-pointer"
+            className="p-1.5 text-indigo-200 hover:text-white hover:bg-white/10 rounded-lg transition-colors cursor-pointer shrink-0 ml-2"
           >
             <X className="w-5 h-5" />
           </button>
@@ -122,24 +122,24 @@ export const LoginModal: React.FC<LoginModalProps> = ({
 
         {/* Currently Logged In Banner */}
         {currentUser && (
-          <div className="bg-emerald-50 border-b border-emerald-200 p-3 px-6 flex items-center justify-between text-xs text-emerald-900">
-            <div className="flex items-center gap-2">
+          <div className="bg-emerald-50 border-b border-emerald-200 p-2.5 sm:p-3 px-4 sm:px-6 flex items-center justify-between text-xs text-emerald-900 shrink-0">
+            <div className="flex items-center gap-2 truncate pr-2">
               <CheckCircle2 className="w-4 h-4 text-emerald-600 shrink-0" />
-              <span>
-                Sedang Aktif Sebagai: <strong className="font-bold">{currentUser.name}</strong> ({currentUser.role === 'admin' ? 'Administrator' : 'Guru Pengajar'})
+              <span className="truncate">
+                Aktif: <strong className="font-bold">{currentUser.name}</strong> ({currentUser.role === 'admin' ? 'Admin' : 'Guru'})
               </span>
             </div>
-            <span className="text-[10px] bg-emerald-200/60 text-emerald-800 px-2 py-0.5 rounded font-bold uppercase">
+            <span className="text-[10px] bg-emerald-200/60 text-emerald-800 px-2 py-0.5 rounded font-bold uppercase shrink-0">
               {currentUser.role}
             </span>
           </div>
         )}
 
         {/* Tab Navigation */}
-        <div className="flex border-b border-slate-200 bg-slate-50 px-6 pt-3 gap-2">
+        <div className="flex border-b border-slate-200 bg-slate-50 px-4 sm:px-6 pt-3 gap-2 overflow-x-auto whitespace-nowrap scrollbar-thin shrink-0">
           <button
             onClick={() => setActiveTab('accounts')}
-            className={`pb-2.5 px-3 text-xs font-bold transition-all border-b-2 cursor-pointer flex items-center gap-1.5 ${
+            className={`pb-2.5 px-3 text-xs font-bold transition-all border-b-2 cursor-pointer flex items-center gap-1.5 shrink-0 whitespace-nowrap ${
               activeTab === 'accounts'
                 ? 'border-indigo-600 text-indigo-700'
                 : 'border-transparent text-slate-500 hover:text-slate-800'
@@ -151,7 +151,7 @@ export const LoginModal: React.FC<LoginModalProps> = ({
 
           <button
             onClick={() => setActiveTab('form')}
-            className={`pb-2.5 px-3 text-xs font-bold transition-all border-b-2 cursor-pointer flex items-center gap-1.5 ${
+            className={`pb-2.5 px-3 text-xs font-bold transition-all border-b-2 cursor-pointer flex items-center gap-1.5 shrink-0 whitespace-nowrap ${
               activeTab === 'form'
                 ? 'border-indigo-600 text-indigo-700'
                 : 'border-transparent text-slate-500 hover:text-slate-800'

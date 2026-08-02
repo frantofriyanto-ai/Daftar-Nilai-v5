@@ -51,81 +51,81 @@ export const AppsScriptModal: React.FC<AppsScriptModalProps> = ({
   };
 
   return (
-    <div className="fixed inset-0 z-50 bg-slate-900/60 backdrop-blur-xs flex items-center justify-center p-4 overflow-y-auto">
-      <div className="bg-white w-full max-w-4xl rounded-2xl shadow-2xl border border-slate-200 overflow-hidden flex flex-col max-h-[90vh]">
+    <div className="fixed inset-0 z-50 bg-slate-900/60 backdrop-blur-xs flex items-center justify-center p-2 sm:p-4 overflow-y-auto">
+      <div className="bg-white w-full max-w-4xl rounded-2xl shadow-2xl border border-slate-200 overflow-hidden flex flex-col max-h-[92vh] my-auto">
         
         {/* Header */}
-        <div className="px-6 py-4 bg-[#4C4B7C] text-white flex items-center justify-between shrink-0">
-          <div className="flex items-center gap-3">
-            <div className="w-10 h-10 rounded-xl bg-teal-500/20 text-teal-300 border border-teal-400/30 flex items-center justify-center font-bold">
+        <div className="px-4 sm:px-6 py-3.5 sm:py-4 bg-[#4C4B7C] text-white flex items-center justify-between shrink-0">
+          <div className="flex items-center gap-2.5 sm:gap-3">
+            <div className="w-9 h-9 sm:w-10 sm:h-10 rounded-xl bg-teal-500/20 text-teal-300 border border-teal-400/30 flex items-center justify-center font-bold shrink-0">
               <FileSpreadsheet className="w-5 h-5" />
             </div>
             <div>
-              <h3 className="text-lg font-bold">Google Sheets & Apps Script Automation</h3>
-              <p className="text-xs text-indigo-200">Otomatisasi Sinkronisasi Spreadsheet ke Dashboard Nilai {activeClass}</p>
+              <h3 className="text-sm sm:text-lg font-bold leading-tight">Google Sheets & Apps Script Automation</h3>
+              <p className="text-[11px] sm:text-xs text-indigo-200 leading-tight">Otomatisasi Sinkronisasi Spreadsheet ke Dashboard Nilai {activeClass}</p>
             </div>
           </div>
           <button
             onClick={onClose}
-            className="p-1.5 rounded-lg text-indigo-200 hover:text-white hover:bg-white/10 transition-colors"
+            className="p-1.5 rounded-lg text-indigo-200 hover:text-white hover:bg-white/10 transition-colors shrink-0 cursor-pointer ml-2"
           >
             <X className="w-5 h-5" />
           </button>
         </div>
 
-        {/* Tab Navigation */}
-        <div className="bg-slate-100 border-b border-slate-200 px-6 flex items-center gap-2 text-xs font-semibold shrink-0">
+        {/* Tab Navigation - Overflow Scroll for Mobile */}
+        <div className="bg-slate-100 border-b border-slate-200 px-3 sm:px-6 flex items-center gap-1 sm:gap-2 text-xs font-semibold shrink-0 overflow-x-auto whitespace-nowrap scrollbar-thin">
           <button
             onClick={() => setActiveTab('codegs')}
-            className={`py-3 px-4 border-b-2 flex items-center gap-2 transition-all ${
+            className={`py-2.5 sm:py-3 px-3 sm:px-4 border-b-2 flex items-center gap-1.5 sm:gap-2 transition-all shrink-0 whitespace-nowrap ${
               activeTab === 'codegs'
                 ? 'border-blue-600 text-blue-600 bg-white font-bold'
                 : 'border-transparent text-slate-600 hover:text-slate-900'
             }`}
           >
-            <Code2 className="w-4 h-4" />
-            <span>Code.gs (Backend Script)</span>
+            <Code2 className="w-3.5 h-3.5 sm:w-4 sm:h-4 text-blue-600" />
+            <span>Code.gs (Backend)</span>
           </button>
 
           <button
             onClick={() => setActiveTab('indexhtml')}
-            className={`py-3 px-4 border-b-2 flex items-center gap-2 transition-all ${
+            className={`py-2.5 sm:py-3 px-3 sm:px-4 border-b-2 flex items-center gap-1.5 sm:gap-2 transition-all shrink-0 whitespace-nowrap ${
               activeTab === 'indexhtml'
                 ? 'border-blue-600 text-blue-600 bg-white font-bold'
                 : 'border-transparent text-slate-600 hover:text-slate-900'
             }`}
           >
-            <Code2 className="w-4 h-4 text-emerald-600" />
-            <span>Index.html (Web App UI)</span>
+            <Code2 className="w-3.5 h-3.5 sm:w-4 sm:h-4 text-emerald-600" />
+            <span>Index.html (Web App)</span>
           </button>
 
           <button
             onClick={() => setActiveTab('guide')}
-            className={`py-3 px-4 border-b-2 flex items-center gap-2 transition-all ${
+            className={`py-2.5 sm:py-3 px-3 sm:px-4 border-b-2 flex items-center gap-1.5 sm:gap-2 transition-all shrink-0 whitespace-nowrap ${
               activeTab === 'guide'
                 ? 'border-blue-600 text-blue-600 bg-white font-bold'
                 : 'border-transparent text-slate-600 hover:text-slate-900'
             }`}
           >
-            <PlayCircle className="w-4 h-4 text-amber-600" />
-            <span>Panduan Pasang (Setup Guide)</span>
+            <PlayCircle className="w-3.5 h-3.5 sm:w-4 sm:h-4 text-amber-600" />
+            <span>Panduan Pasang</span>
           </button>
 
           <button
             onClick={() => setActiveTab('connect')}
-            className={`py-3 px-4 border-b-2 flex items-center gap-2 transition-all ${
+            className={`py-2.5 sm:py-3 px-3 sm:px-4 border-b-2 flex items-center gap-1.5 sm:gap-2 transition-all shrink-0 whitespace-nowrap ${
               activeTab === 'connect'
                 ? 'border-blue-600 text-blue-600 bg-white font-bold'
                 : 'border-transparent text-slate-600 hover:text-slate-900'
             }`}
           >
-            <RefreshCw className="w-4 h-4 text-teal-600" />
+            <RefreshCw className="w-3.5 h-3.5 sm:w-4 sm:h-4 text-teal-600" />
             <span>Hubungkan Web App URL</span>
           </button>
         </div>
 
         {/* Tab Contents */}
-        <div className="p-6 overflow-y-auto flex-1 bg-slate-50">
+        <div className="p-4 sm:p-6 overflow-y-auto flex-1 bg-slate-50 min-h-0">
           
           {/* 1. Code.gs */}
           {activeTab === 'codegs' && (
@@ -297,11 +297,13 @@ export const AppsScriptModal: React.FC<AppsScriptModalProps> = ({
         </div>
 
         {/* Footer */}
-        <div className="p-4 bg-white border-t border-slate-200 flex justify-between items-center text-xs">
-          <span className="text-slate-500">Format Otomatisasi untuk Google Sheets Class 12-A</span>
+        <div className="p-3 sm:p-4 bg-white border-t border-slate-200 flex justify-between items-center text-xs shrink-0">
+          <span className="text-slate-500 text-[10px] sm:text-xs truncate max-w-[200px] sm:max-w-none">
+            Format Otomatisasi Google Sheets {activeClass}
+          </span>
           <button
             onClick={onClose}
-            className="px-4 py-2 bg-slate-200 hover:bg-slate-300 text-slate-800 font-semibold rounded-lg transition-colors"
+            className="px-4 py-1.5 sm:py-2 bg-slate-200 hover:bg-slate-300 text-slate-800 font-semibold rounded-lg transition-colors shrink-0 cursor-pointer"
           >
             Tutup
           </button>

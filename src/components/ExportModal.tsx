@@ -234,22 +234,22 @@ export const ExportModal: React.FC<ExportModalProps> = ({
     <div className="fixed inset-0 z-50 bg-slate-900/70 backdrop-blur-xs flex items-center justify-center p-2 sm:p-4 overflow-y-auto modal-backdrop-overlay">
       <div className="bg-white w-full max-w-4xl rounded-2xl shadow-2xl border border-slate-200 overflow-hidden flex flex-col my-auto max-h-[92vh]">
         {/* Modal Navigation Bar (Hidden during print) */}
-        <div className="px-6 py-4 bg-[#4C4B7C] text-white flex items-center justify-between no-print shrink-0">
-          <div className="flex items-center gap-3">
-            <div className="p-2 bg-emerald-500/20 rounded-lg text-emerald-300">
+        <div className="px-4 sm:px-6 py-3.5 sm:py-4 bg-[#4C4B7C] text-white flex items-center justify-between no-print shrink-0">
+          <div className="flex items-center gap-2.5 sm:gap-3">
+            <div className="p-2 bg-emerald-500/20 rounded-lg text-emerald-300 shrink-0">
               <FileCheck className="w-5 h-5" />
             </div>
             <div>
-              <h3 className="text-base font-bold text-white">
+              <h3 className="text-sm sm:text-base font-bold text-white leading-tight">
                 {singleStudent ? `Cetak Rapor Siswa: ${singleStudent.name}` : `Cetak Rekap Laporan Nilai ${activeClass}`}
               </h3>
-              <p className="text-xs text-indigo-200 mt-0.5">
+              <p className="text-[11px] sm:text-xs text-indigo-200 mt-0.5 leading-tight">
                 {activeClass} • {periodText}
               </p>
             </div>
           </div>
 
-          <div className="flex items-center gap-2">
+          <div className="flex items-center gap-2 shrink-0 ml-2">
             {viewMode === 'preview' ? (
               <button
                 onClick={() => setViewMode('options')}
