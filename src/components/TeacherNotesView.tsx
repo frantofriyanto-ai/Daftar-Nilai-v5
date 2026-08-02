@@ -6,12 +6,14 @@ interface TeacherNotesViewProps {
   students: Student[];
   onUpdateNotes: (studentId: string, notes: string) => void;
   teacherName?: string;
+  activeClass?: string;
 }
 
 export const TeacherNotesView: React.FC<TeacherNotesViewProps> = ({
   students,
   onUpdateNotes,
-  teacherName = 'Budi Santoso, M.Pd'
+  teacherName = 'Budi Santoso, M.Pd',
+  activeClass = 'Kelas 12-A'
 }) => {
   const [selectedStudentId, setSelectedStudentId] = useState(students[0]?.id || '');
   const selectedStudent = students.find((s) => s.id === selectedStudentId) || students[0];
@@ -36,7 +38,7 @@ export const TeacherNotesView: React.FC<TeacherNotesViewProps> = ({
   return (
     <div className="space-y-6">
       <div className="bg-white p-6 rounded-xl border border-slate-200/80 shadow-xs">
-        <h2 className="text-xl font-bold text-slate-900 tracking-tight">Catatan Guru Kelas 12-A</h2>
+        <h2 className="text-xl font-bold text-slate-900 tracking-tight">Catatan Guru {activeClass}</h2>
         <p className="text-xs text-slate-500 mt-0.5">Kelola catatan perkembangan akademik, karakter, dan bimbingan konseling untuk siswa.</p>
       </div>
 
@@ -85,7 +87,7 @@ export const TeacherNotesView: React.FC<TeacherNotesViewProps> = ({
                   </div>
                   <div>
                     <h3 className="text-base font-bold text-slate-900">{selectedStudent.name}</h3>
-                    <p className="text-xs text-slate-500">NIS: {selectedStudent.nis} • Kelas 12-A</p>
+                    <p className="text-xs text-slate-500">NIS: {selectedStudent.nis} • {activeClass}</p>
                   </div>
                 </div>
 

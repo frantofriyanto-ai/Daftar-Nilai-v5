@@ -7,6 +7,7 @@ interface StudentDataViewProps {
   students: Student[];
   onUpdateStudent: (updated: Student) => void;
   onOpenExportModal: (student?: Student) => void;
+  activeClass?: string;
 }
 
 const COMPARE_COLORS = [
@@ -31,7 +32,8 @@ const SUBJECT_LIST = [
 export const StudentDataView: React.FC<StudentDataViewProps> = ({
   students,
   onUpdateStudent,
-  onOpenExportModal
+  onOpenExportModal,
+  activeClass = 'Kelas 12-A'
 }) => {
   const [search, setSearch] = useState('');
   const [editingId, setEditingId] = useState<string | null>(null);
@@ -192,7 +194,7 @@ export const StudentDataView: React.FC<StudentDataViewProps> = ({
       <div className="bg-white p-6 rounded-xl border border-slate-200/80 shadow-xs flex flex-col space-y-4">
         <div className="flex flex-col md:flex-row items-start md:items-center justify-between gap-4">
           <div>
-            <h2 className="text-xl font-bold text-slate-900 tracking-tight">Data Siswa, Kehadiran & Total Nilai (Kelas 12-A)</h2>
+            <h2 className="text-xl font-bold text-slate-900 tracking-tight">Data Siswa, Kehadiran & Total Nilai ({activeClass})</h2>
             <p className="text-xs text-slate-500 mt-0.5">Kelola nilai akhir & rincian komponen (Tugas 20%, TP1-5 25%, Formatif 20%, Sumatif 30%, Kehadiran 5%).</p>
           </div>
 

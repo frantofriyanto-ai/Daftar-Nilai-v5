@@ -411,6 +411,7 @@ export default function App() {
               students={students}
               onUpdateStudent={handleUpdateStudent}
               onOpenExportModal={handleOpenExportModal}
+              activeClass={activeClass}
             />
           )}
 
@@ -419,6 +420,7 @@ export default function App() {
               subjectKey="math"
               students={students}
               onUpdateGrade={handleUpdateGrade}
+              activeClass={activeClass}
             />
           )}
 
@@ -427,6 +429,7 @@ export default function App() {
               subjectKey="indonesian"
               students={students}
               onUpdateGrade={handleUpdateGrade}
+              activeClass={activeClass}
             />
           )}
 
@@ -435,6 +438,7 @@ export default function App() {
               subjectKey="english"
               students={students}
               onUpdateGrade={handleUpdateGrade}
+              activeClass={activeClass}
             />
           )}
 
@@ -443,6 +447,7 @@ export default function App() {
               subjectKey="science"
               students={students}
               onUpdateGrade={handleUpdateGrade}
+              activeClass={activeClass}
             />
           )}
 
@@ -451,6 +456,7 @@ export default function App() {
               subjectKey="pancasila"
               students={students}
               onUpdateGrade={handleUpdateGrade}
+              activeClass={activeClass}
             />
           )}
 
@@ -459,6 +465,7 @@ export default function App() {
               subjectKey="arts"
               students={students}
               onUpdateGrade={handleUpdateGrade}
+              activeClass={activeClass}
             />
           )}
 
@@ -467,6 +474,7 @@ export default function App() {
               subjectKey="sundanese"
               students={students}
               onUpdateGrade={handleUpdateGrade}
+              activeClass={activeClass}
             />
           )}
 
@@ -475,6 +483,7 @@ export default function App() {
               subjectKey="cocurricular"
               students={students}
               onUpdateGrade={handleUpdateGrade}
+              activeClass={activeClass}
             />
           )}
 
@@ -483,6 +492,7 @@ export default function App() {
               students={students}
               onUpdateNotes={handleUpdateNotes}
               teacherName={teacherName}
+              activeClass={activeClass}
             />
           )}
         </main>
@@ -495,6 +505,7 @@ export default function App() {
         students={students}
         onAddStudent={handleAddStudent}
         onUpdateGrade={handleUpdateGrade}
+        activeClass={activeClass}
       />
 
       <AppsScriptModal
@@ -504,6 +515,7 @@ export default function App() {
         onSaveWebAppUrl={handleSaveWebAppUrl}
         onSyncData={handleSyncData}
         isSyncing={isSyncing}
+        activeClass={activeClass}
       />
 
       <ExportModal

@@ -9,6 +9,7 @@ interface AppsScriptModalProps {
   onSaveWebAppUrl: (url: string) => void;
   onSyncData: () => Promise<void>;
   isSyncing: boolean;
+  activeClass?: string;
 }
 
 export const AppsScriptModal: React.FC<AppsScriptModalProps> = ({
@@ -17,7 +18,8 @@ export const AppsScriptModal: React.FC<AppsScriptModalProps> = ({
   webAppUrl,
   onSaveWebAppUrl,
   onSyncData,
-  isSyncing
+  isSyncing,
+  activeClass = 'Kelas 12-A'
 }) => {
   const [activeTab, setActiveTab] = useState<'codegs' | 'indexhtml' | 'guide' | 'connect'>('codegs');
   const [copiedGs, setCopiedGs] = useState(false);
@@ -60,7 +62,7 @@ export const AppsScriptModal: React.FC<AppsScriptModalProps> = ({
             </div>
             <div>
               <h3 className="text-lg font-bold">Google Sheets & Apps Script Automation</h3>
-              <p className="text-xs text-indigo-200">Otomatisasi Sinkronisasi Spreadsheet ke Dashboard Nilai Kelas 12-A</p>
+              <p className="text-xs text-indigo-200">Otomatisasi Sinkronisasi Spreadsheet ke Dashboard Nilai {activeClass}</p>
             </div>
           </div>
           <button

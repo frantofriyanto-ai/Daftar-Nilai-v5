@@ -7,12 +7,14 @@ interface SubjectDetailViewProps {
   subjectKey: keyof Student['grades'];
   students: Student[];
   onUpdateGrade: (studentId: string, subject: keyof Student['grades'], grade: SubjectGradeBreakdown | number) => void;
+  activeClass?: string;
 }
 
 export const SubjectDetailView: React.FC<SubjectDetailViewProps> = ({
   subjectKey,
   students,
-  onUpdateGrade
+  onUpdateGrade,
+  activeClass = 'Kelas 12-A'
 }) => {
   const info = Object.values(SUBJECT_INFO_MAP).find((s) => s.key === subjectKey) || {
     label: 'Mata Pelajaran',
@@ -117,7 +119,7 @@ export const SubjectDetailView: React.FC<SubjectDetailViewProps> = ({
       <div className="bg-gradient-to-r from-[#4C4B7C] to-[#5D5B8D] text-white p-6 rounded-2xl shadow-sm flex flex-col md:flex-row justify-between items-start md:items-center gap-4">
         <div>
           <span className="text-[11px] font-bold uppercase tracking-wider text-indigo-200 bg-white/10 px-2.5 py-1 rounded-full">
-            Kurikulum Merdeka • Kelas 12-A
+            Kurikulum Merdeka • {activeClass}
           </span>
           <h2 className="text-2xl font-bold tracking-tight mt-2">{info.label}</h2>
           <p className="text-xs text-indigo-100 mt-1">Bobot Penilaian: Tugas (20%) + TP1-5 (25%) + Formatif (20%) + Sumatif (30%) + Kehadiran (5%)</p>

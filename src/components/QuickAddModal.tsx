@@ -8,6 +8,7 @@ interface QuickAddModalProps {
   students: Student[];
   onAddStudent: (newStudent: Student) => void;
   onUpdateGrade: (studentId: string, subject: keyof Student['grades'], score: SubjectGradeBreakdown | number) => void;
+  activeClass?: string;
 }
 
 export const QuickAddModal: React.FC<QuickAddModalProps> = ({
@@ -15,7 +16,8 @@ export const QuickAddModal: React.FC<QuickAddModalProps> = ({
   onClose,
   students,
   onAddStudent,
-  onUpdateGrade
+  onUpdateGrade,
+  activeClass = 'Kelas 12-A'
 }) => {
   const [mode, setMode] = useState<'updateGrade' | 'newStudent'>('updateGrade');
 
@@ -76,7 +78,7 @@ export const QuickAddModal: React.FC<QuickAddModalProps> = ({
         sundanese: Number(sundaneseScore),
         cocurricular: Number(cocurrScore)
       },
-      notes: 'Siswa baru ditambahkan ke Kelas 12-A.',
+      notes: `Siswa baru ditambahkan ke ${activeClass}.`,
       updatedAt: 'Baru saja'
     };
 
@@ -132,7 +134,7 @@ export const QuickAddModal: React.FC<QuickAddModalProps> = ({
           {mode === 'updateGrade' ? (
             <form onSubmit={handleGradeSubmit} className="space-y-4">
               <div>
-                <label className="block text-xs font-semibold text-slate-700 mb-1">Pilih Siswa Kelas 12-A:</label>
+                <label className="block text-xs font-semibold text-slate-700 mb-1">Pilih Siswa ({activeClass}):</label>
                 <select
                   value={selectedStudentId}
                   onChange={(e) => setSelectedStudentId(e.target.value)}
