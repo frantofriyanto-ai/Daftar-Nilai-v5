@@ -7,7 +7,7 @@ interface AppsScriptModalProps {
   onClose: () => void;
   webAppUrl: string;
   onSaveWebAppUrl: (url: string) => void;
-  onSyncData: () => Promise<void>;
+  onSyncData: (mode?: 'pull' | 'push' | 'both') => Promise<void>;
   isSyncing: boolean;
   activeClass?: string;
 }
@@ -251,23 +251,36 @@ export const AppsScriptModal: React.FC<AppsScriptModalProps> = ({
                     />
                   </div>
 
-                  <div className="flex items-center justify-between pt-2">
+                  <div className="pt-2 space-y-2">
                     <button
                       type="submit"
-                      className="px-4 py-2 bg-teal-600 hover:bg-teal-700 text-white font-semibold text-xs rounded-lg transition-colors shadow-xs cursor-pointer"
+                      className="w-full py-2 bg-teal-600 hover:bg-teal-700 text-white font-semibold text-xs rounded-lg transition-colors shadow-xs cursor-pointer"
                     >
                       Simpan Web App URL
                     </button>
 
-                    <button
-                      type="button"
-                      onClick={onSyncData}
-                      disabled={isSyncing}
-                      className="px-4 py-2 bg-slate-800 hover:bg-slate-900 text-white font-semibold text-xs rounded-lg transition-colors flex items-center gap-1.5 cursor-pointer disabled:opacity-50"
-                    >
-                      <RefreshCw className={`w-3.5 h-3.5 ${isSyncing ? 'animate-spin' : ''}`} />
-                      <span>{isSyncing ? 'Menyinkronkan...' : 'Tes & Sync Real-Time Now'}</span>
-                    </button>
+                    <div className="grid grid-cols-1 sm:grid-cols-2 gap-2 pt-1">
+                      <button
+                        type="button"
+                        onClick={() => onSyncData('pull')}
+                        disabled={isSyncing}
+                        className="px-3 py-2 bg-blue-50 hover:bg-blue-100 text-blue-800 font-bold text-xs rounded-lg border border-blue-200 transition-colors flex items-center justify-center gap-1.5 cursor-pointer disabled:opacity-50"
+                        title="Tarik perubahan nilai yang diedit langsung di Google Sheets ke Dashboard Aplikasi"
+                      >
+                        <RefreshCw className={`w-3.5 h-3.5 text-blue-600 ${isSyncing ? 'animate-spin' : ''}`} />
+                        <span>📥 Tarik Data dari Sheets</span>
+                      </button>
+
+                      <button
+                        type="button"
+                        onClick={() => onSyncData('both')}
+                        disabled={isSyncing}
+                        className="px-3 py-2 bg-slate-800 hover:bg-slate-900 text-white font-bold text-xs rounded-lg transition-colors flex items-center justify-center gap-1.5 cursor-pointer disabled:opacity-50"
+                      >
+                        <RefreshCw className={`w-3.5 h-3.5 ${isSyncing ? 'animate-spin' : ''}`} />
+                        <span>🔄 Sync Dua Arah Now</span>
+                      </button>
+                    </div>
                   </div>
 
                   {saveSuccess && (

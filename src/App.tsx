@@ -401,29 +401,34 @@ export default function App() {
     }
   };
 
-  const handleSyncData = async () => {
+  const handleSyncData = async (mode: 'pull' | 'push' | 'both' = 'both') => {
     setIsSyncing(true);
     try {
       if (webAppUrl) {
-        // 1. Send current student state batch to Google Sheets
-        await fetch(webAppUrl, {
-          method: 'POST',
-          headers: { 'Content-Type': 'text/plain;charset=utf-8' },
-          body: JSON.stringify({
-            action: 'syncAll',
-            students: students,
-            activeClass: activeClass
-          })
-        }).catch(() => {});
+        if (mode === 'push' || mode === 'both') {
+          // 1. Send current student state batch to Google Sheets
+          await fetch(webAppUrl, {
+            method: 'POST',
+            headers: { 'Content-Type': 'text/plain;charset=utf-8' },
+            body: JSON.stringify({
+              action: 'syncAll',
+              students: students,
+              activeClass: activeClass
+            })
+          }).catch(() => {});
+        }
 
-        // 2. Pull updated data from Google Sheets
-        const res = await fetch(`${webAppUrl}?action=getData&class=${encodeURIComponent(activeClass)}`);
-        if (res.ok) {
-          const json = await res.json();
-          if (json.students && Array.isArray(json.students) && json.students.length > 0) {
-            setStudents(json.students);
+        if (mode === 'pull' || mode === 'both') {
+          // 2. Pull updated data from Google Sheets (incorporates edits made directly in Sheets)
+          const res = await fetch(`${webAppUrl}?action=getData&class=${encodeURIComponent(activeClass)}`);
+          if (res.ok) {
+            const json = await res.json();
+            if (json.students && Array.isArray(json.students) && json.students.length > 0) {
+              setStudents(json.students);
+            }
           }
         }
+
         const now = new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit', second: '2-digit' });
         setLastSyncTime(now);
         localStorage.setItem('antigravity_last_sync_time', now);
