@@ -261,6 +261,18 @@ export default function App() {
     setTeacherName(user.name);
     localStorage.setItem('antigravity_current_user', JSON.stringify(user));
     localStorage.setItem('antigravity_teacher_name', user.name);
+
+    // Auto-switch class according to logged in teacher's assigned class
+    if (user.role === 'teacher' && user.assignedClasses && user.assignedClasses.length > 0) {
+      const primaryClass = user.assignedClasses[0];
+      if (!classList.includes(primaryClass)) {
+        const newClassList = [...classList, primaryClass];
+        setClassList(newClassList);
+        localStorage.setItem('antigravity_class_list', JSON.stringify(newClassList));
+      }
+      setActiveClass(primaryClass);
+      localStorage.setItem('antigravity_active_class', primaryClass);
+    }
   };
 
   const handleLogout = () => {
@@ -405,26 +417,33 @@ export default function App() {
     setIsSyncing(true);
     try {
       if (webAppUrl) {
+        const savedUsersStr = localStorage.getItem('antigravity_users_list');
+        const currentUsersList: UserAccount[] = savedUsersStr ? JSON.parse(savedUsersStr) : MOCK_USERS;
+
         if (mode === 'push' || mode === 'both') {
-          // 1. Send current student state batch to Google Sheets
+          // 1. Send current student state batch & users list to Google Sheets
           await fetch(webAppUrl, {
             method: 'POST',
             headers: { 'Content-Type': 'text/plain;charset=utf-8' },
             body: JSON.stringify({
               action: 'syncAll',
               students: students,
-              activeClass: activeClass
+              activeClass: activeClass,
+              users: currentUsersList
             })
           }).catch(() => {});
         }
 
         if (mode === 'pull' || mode === 'both') {
-          // 2. Pull updated data from Google Sheets (incorporates edits made directly in Sheets)
+          // 2. Pull updated data from Google Sheets (incorporates edits made directly in Sheets for activeClass + Akun Guru)
           const res = await fetch(`${webAppUrl}?action=getData&class=${encodeURIComponent(activeClass)}`);
           if (res.ok) {
             const json = await res.json();
             if (json.students && Array.isArray(json.students) && json.students.length > 0) {
               setStudents(json.students);
+            }
+            if (json.users && Array.isArray(json.users) && json.users.length > 0) {
+              localStorage.setItem('antigravity_users_list', JSON.stringify(json.users));
             }
           }
         }
@@ -794,6 +813,9 @@ export default function App() {
         isOpen={isUserMgmtModalOpen}
         onClose={() => setIsUserMgmtModalOpen(false)}
         currentUser={currentUser}
+        webAppUrl={webAppUrl}
+        onSyncData={handleSyncData}
+        isSyncing={isSyncing}
       />
     </div>
   );

@@ -7,12 +7,18 @@ interface UserManagementModalProps {
   isOpen: boolean;
   onClose: () => void;
   currentUser: UserAccount | null;
+  webAppUrl?: string;
+  onSyncData?: (mode?: 'pull' | 'push' | 'both') => Promise<void>;
+  isSyncing?: boolean;
 }
 
 export const UserManagementModal: React.FC<UserManagementModalProps> = ({
   isOpen,
   onClose,
-  currentUser
+  currentUser,
+  webAppUrl = '',
+  onSyncData,
+  isSyncing = false
 }) => {
   const [users, setUsers] = useState<UserAccount[]>(() => {
     const saved = localStorage.getItem('antigravity_users_list');
@@ -98,6 +104,32 @@ export const UserManagementModal: React.FC<UserManagementModalProps> = ({
 
         {/* Body Content */}
         <div className="p-6 overflow-y-auto space-y-6">
+          {/* Google Sheets User Accounts Sync Card */}
+          {webAppUrl && (
+            <div className="bg-gradient-to-r from-indigo-900 to-purple-900 text-white p-3.5 px-4 rounded-xl shadow-xs flex items-center justify-between text-xs">
+              <div className="flex items-center gap-2.5">
+                <div className="w-8 h-8 rounded-lg bg-white/10 flex items-center justify-center text-amber-300 shrink-0">
+                  <Key className="w-4 h-4" />
+                </div>
+                <div>
+                  <p className="font-bold text-white leading-tight">Terintegrasi Sheet 'Akun Guru' Spreadsheet</p>
+                  <p className="text-[11px] text-indigo-200">User login & NIP tersinkronisasi otomatis dengan Google Sheets.</p>
+                </div>
+              </div>
+
+              {onSyncData && (
+                <button
+                  type="button"
+                  onClick={() => onSyncData('both')}
+                  disabled={isSyncing}
+                  className="px-3 py-1.5 bg-amber-400 hover:bg-amber-300 text-slate-900 font-extrabold rounded-lg transition-colors cursor-pointer disabled:opacity-50 shrink-0"
+                >
+                  {isSyncing ? 'Menyinkronkan...' : '🔄 Sync User Spreadsheet'}
+                </button>
+              )}
+            </div>
+          )}
+
           <div className="flex items-center justify-between">
             <div>
               <h4 className="font-bold text-slate-800 text-sm">Daftar Pengguna Terdaftar ({users.length})</h4>

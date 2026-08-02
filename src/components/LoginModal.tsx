@@ -37,6 +37,11 @@ export const LoginModal: React.FC<LoginModalProps> = ({
   const [errorMessage, setErrorMessage] = useState('');
   const [isLoading, setIsLoading] = useState(false);
 
+  const [usersList] = useState<UserAccount[]>(() => {
+    const saved = localStorage.getItem('antigravity_users_list');
+    return saved ? JSON.parse(saved) : MOCK_USERS;
+  });
+
   if (!isOpen) return null;
 
   const handleQuickLogin = (user: UserAccount) => {
@@ -55,7 +60,7 @@ export const LoginModal: React.FC<LoginModalProps> = ({
 
     setTimeout(() => {
       const cleanInput = identifier.trim().toLowerCase();
-      const matched = MOCK_USERS.find((u) => {
+      const matched = usersList.find((u) => {
         if (selectedRole !== u.role) return false;
         return (
           u.nip.toLowerCase().includes(cleanInput) ||
@@ -167,7 +172,7 @@ export const LoginModal: React.FC<LoginModalProps> = ({
 
               {/* Account Cards */}
               <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
-                {MOCK_USERS.map((user) => {
+                {usersList.map((user) => {
                   const isAdmin = user.role === 'admin';
                   const isSelected = currentUser?.id === user.id;
 
@@ -207,11 +212,17 @@ export const LoginModal: React.FC<LoginModalProps> = ({
                         <h4 className="font-bold text-slate-900 text-sm leading-snug">{user.name}</h4>
                         <p className="text-[11px] text-slate-500 mt-0.5 font-medium">{user.title}</p>
                         <p className="text-[10px] text-slate-400 mt-1 font-mono">NIP: {user.nip}</p>
+
+                        {!isAdmin && user.assignedClasses && user.assignedClasses.length > 0 && (
+                          <div className="mt-2 text-[10px] font-bold text-teal-800 bg-teal-100/80 px-2 py-1 rounded-md inline-block">
+                            🏫 Auto-Switch Ke: {user.assignedClasses[0]}
+                          </div>
+                        )}
                       </div>
 
                       <div className="mt-3 pt-2.5 border-t border-slate-200/60 flex items-center justify-between text-[11px]">
                         <span className="text-slate-500">
-                          {isAdmin ? 'Akses: Semua Kelas & Sistem' : `Kelas: ${user.assignedClasses?.join(', ')}`}
+                          {isAdmin ? 'Akses: Semua Kelas' : `Wali Kelas: ${user.assignedClasses?.join(', ')}`}
                         </span>
                         <span className={`font-bold ${isAdmin ? 'text-purple-700' : 'text-teal-700'}`}>
                           Masuk &rarr;
