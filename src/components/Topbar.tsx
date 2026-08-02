@@ -1,5 +1,5 @@
 import React, { useState, useRef, useEffect } from 'react';
-import { Search, Bell, Plus, FileSpreadsheet, RefreshCw, Menu, UserCheck, ShieldCheck, LogOut, ChevronDown, User, Settings } from 'lucide-react';
+import { Search, Bell, Plus, FileSpreadsheet, RefreshCw, Menu, UserCheck, ShieldCheck, LogOut, ChevronDown, User, Settings, Target } from 'lucide-react';
 import { UserAccount } from '../types';
 
 interface TopbarProps {
@@ -7,6 +7,7 @@ interface TopbarProps {
   onSearchChange: (q: string) => void;
   onOpenQuickAdd: () => void;
   onOpenAppsScriptModal: () => void;
+  onOpenKkmModal?: () => void;
   isSyncing?: boolean;
   webAppUrl?: string;
   lastSyncTime?: string;
@@ -22,6 +23,7 @@ export const Topbar: React.FC<TopbarProps> = ({
   onSearchChange,
   onOpenQuickAdd,
   onOpenAppsScriptModal,
+  onOpenKkmModal,
   isSyncing,
   webAppUrl = '',
   lastSyncTime = '',
@@ -111,6 +113,19 @@ export const Topbar: React.FC<TopbarProps> = ({
           {isSyncing && <RefreshCw className="w-3 h-3 text-teal-600 animate-spin ml-0.5" />}
         </button>
 
+        {/* KKM Setting Button */}
+        {onOpenKkmModal && (
+          <button
+            onClick={onOpenKkmModal}
+            className="flex items-center gap-1.5 px-2.5 sm:px-3 py-1.5 sm:py-2 text-xs font-semibold text-amber-900 bg-amber-50 hover:bg-amber-100 border border-amber-200 rounded-lg transition-colors shadow-2xs cursor-pointer shrink-0"
+            title="Kelola Nilai KKM per Mata Pelajaran Sekolah Dasar"
+          >
+            <Target className="w-3.5 h-3.5 text-amber-600 shrink-0" />
+            <span className="hidden lg:inline font-bold">Setting KKM Mapel</span>
+            <span className="lg:hidden text-[11px] font-bold">KKM</span>
+          </button>
+        )}
+
         {/* Quick Add Button */}
         <button
           onClick={onOpenQuickAdd}
@@ -191,6 +206,19 @@ export const Topbar: React.FC<TopbarProps> = ({
                   <User className="w-4 h-4 text-indigo-600" />
                   <span>Ganti Akun / Log In Baru</span>
                 </button>
+
+                {onOpenKkmModal && (
+                  <button
+                    onClick={() => {
+                      setIsProfileOpen(false);
+                      onOpenKkmModal();
+                    }}
+                    className="w-full text-left px-4 py-2 text-amber-900 hover:bg-amber-50 font-semibold flex items-center gap-2 transition-colors cursor-pointer"
+                  >
+                    <Target className="w-4 h-4 text-amber-600" />
+                    <span>Setting KKM Mata Pelajaran SD</span>
+                  </button>
+                )}
 
                 {isAdmin && (
                   <button

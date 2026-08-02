@@ -106,10 +106,44 @@ export interface Student {
   updatedAt: string;
 }
 
+export interface SubjectKKMMap {
+  math: number;
+  indonesian: number;
+  english: number;
+  science: number;
+  pancasila: number;
+  arts: number;
+  sundanese: number;
+  cocurricular: number;
+}
+
+export const DEFAULT_SUBJECT_KKM: SubjectKKMMap = {
+  indonesian: 75,
+  math: 70,
+  science: 75,
+  pancasila: 75,
+  english: 70,
+  arts: 75,
+  sundanese: 75,
+  cocurricular: 75,
+};
+
+export const SUBJECT_NAMES: Record<keyof SubjectKKMMap, { name: string; short: string; code: string }> = {
+  indonesian: { name: 'Bahasa Indonesia', short: 'B. Indo', code: 'BIND' },
+  math: { name: 'Matematika', short: 'MTK', code: 'MTK' },
+  science: { name: 'IPAS (Science)', short: 'IPAS', code: 'IPAS' },
+  pancasila: { name: 'Pendidikan Pancasila (PKn)', short: 'Pancasila', code: 'PPKN' },
+  english: { name: 'Bahasa Inggris', short: 'B. Ing', code: 'BING' },
+  arts: { name: 'Seni & Budaya (SBdP)', short: 'Seni', code: 'SBDP' },
+  sundanese: { name: 'Bahasa Daerah (Sunda)', short: 'B. Daerah', code: 'BD' },
+  cocurricular: { name: 'P5 / Kokurikuler', short: 'P5', code: 'P5' },
+};
+
 export function getKKMStatus(score: number, kkm = 75) {
   const isPass = score >= kkm;
   return {
     isPass,
+    kkm,
     label: isPass ? 'Tuntas' : 'Remidial',
     badgeClass: isPass 
       ? 'bg-emerald-100 text-emerald-800 border-emerald-300' 

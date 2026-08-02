@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { AppView, Student, GradeLog, SubjectGradeBreakdown, getSubjectFinalScore, UserAccount } from './types';
+import { AppView, Student, GradeLog, SubjectGradeBreakdown, getSubjectFinalScore, UserAccount, SubjectKKMMap, DEFAULT_SUBJECT_KKM } from './types';
 import { INITIAL_STUDENTS, INITIAL_RECENT_UPDATES, getInitialStudentsForClass } from './data/mockData';
 import { MOCK_USERS } from './data/mockUsers';
 import { Sidebar } from './components/Sidebar';
@@ -18,6 +18,7 @@ import { ClassManagerModal } from './components/ClassManagerModal';
 import { LoginModal } from './components/LoginModal';
 import { UserManagementModal } from './components/UserManagementModal';
 import { WhatsAppModal } from './components/WhatsAppModal';
+import { KKMSettingsModal } from './components/KKMSettingsModal';
 import { Download, Share2, FileSpreadsheet, School, ChevronDown } from 'lucide-react';
 
 const DEFAULT_CLASSES = ['Kelas 12-A', 'Kelas 12-B', 'Kelas 11-MIPA 1', 'Kelas 10-A'];
@@ -38,6 +39,22 @@ export default function App() {
     const saved = localStorage.getItem('antigravity_kkm');
     return saved ? Number(saved) : 75;
   });
+  const [kkmMap, setKkmMap] = useState<SubjectKKMMap>(() => {
+    const saved = localStorage.getItem('antigravity_subject_kkm_map');
+    return saved ? JSON.parse(saved) : DEFAULT_SUBJECT_KKM;
+  });
+  const [isKkmModalOpen, setIsKkmModalOpen] = useState(false);
+
+  const handleSaveKKMMap = (newMap: SubjectKKMMap) => {
+    setKkmMap(newMap);
+    localStorage.setItem('antigravity_subject_kkm_map', JSON.stringify(newMap));
+  };
+
+  const handleSaveGlobalKkm = (newKkm: number) => {
+    setKkm(newKkm);
+    localStorage.setItem('antigravity_kkm', String(newKkm));
+  };
+
   const [waModalStudent, setWaModalStudent] = useState<Student | null>(null);
   const [isWaModalOpen, setIsWaModalOpen] = useState(false);
 
@@ -458,6 +475,7 @@ export default function App() {
           onSearchChange={setSearchQuery}
           onOpenQuickAdd={() => setIsQuickAddOpen(true)}
           onOpenAppsScriptModal={() => setIsAppsScriptOpen(true)}
+          onOpenKkmModal={() => setIsKkmModalOpen(true)}
           isSyncing={isSyncing}
           webAppUrl={webAppUrl}
           lastSyncTime={lastSyncTime}
@@ -570,6 +588,7 @@ export default function App() {
               students={students}
               onUpdateGrade={handleUpdateGrade}
               activeClass={activeClass}
+              kkm={kkmMap.math ?? kkm}
               webAppUrl={webAppUrl}
               isSyncing={isSyncing}
               lastSyncTime={lastSyncTime}
@@ -584,6 +603,7 @@ export default function App() {
               students={students}
               onUpdateGrade={handleUpdateGrade}
               activeClass={activeClass}
+              kkm={kkmMap.indonesian ?? kkm}
               webAppUrl={webAppUrl}
               isSyncing={isSyncing}
               lastSyncTime={lastSyncTime}
@@ -598,6 +618,7 @@ export default function App() {
               students={students}
               onUpdateGrade={handleUpdateGrade}
               activeClass={activeClass}
+              kkm={kkmMap.english ?? kkm}
               webAppUrl={webAppUrl}
               isSyncing={isSyncing}
               lastSyncTime={lastSyncTime}
@@ -612,6 +633,7 @@ export default function App() {
               students={students}
               onUpdateGrade={handleUpdateGrade}
               activeClass={activeClass}
+              kkm={kkmMap.science ?? kkm}
               webAppUrl={webAppUrl}
               isSyncing={isSyncing}
               lastSyncTime={lastSyncTime}
@@ -626,6 +648,7 @@ export default function App() {
               students={students}
               onUpdateGrade={handleUpdateGrade}
               activeClass={activeClass}
+              kkm={kkmMap.pancasila ?? kkm}
               webAppUrl={webAppUrl}
               isSyncing={isSyncing}
               lastSyncTime={lastSyncTime}
@@ -640,6 +663,7 @@ export default function App() {
               students={students}
               onUpdateGrade={handleUpdateGrade}
               activeClass={activeClass}
+              kkm={kkmMap.arts ?? kkm}
               webAppUrl={webAppUrl}
               isSyncing={isSyncing}
               lastSyncTime={lastSyncTime}
@@ -654,6 +678,7 @@ export default function App() {
               students={students}
               onUpdateGrade={handleUpdateGrade}
               activeClass={activeClass}
+              kkm={kkmMap.sundanese ?? kkm}
               webAppUrl={webAppUrl}
               isSyncing={isSyncing}
               lastSyncTime={lastSyncTime}
@@ -668,6 +693,7 @@ export default function App() {
               students={students}
               onUpdateGrade={handleUpdateGrade}
               activeClass={activeClass}
+              kkm={kkmMap.cocurricular ?? kkm}
               webAppUrl={webAppUrl}
               isSyncing={isSyncing}
               lastSyncTime={lastSyncTime}
@@ -690,6 +716,14 @@ export default function App() {
       </div>
 
       {/* Modals */}
+      <KKMSettingsModal
+        isOpen={isKkmModalOpen}
+        onClose={() => setIsKkmModalOpen(false)}
+        kkmMap={kkmMap}
+        onSaveKKMMap={handleSaveKKMMap}
+        globalKkm={kkm}
+        onSaveGlobalKkm={handleSaveGlobalKkm}
+      />
       <WhatsAppModal
         isOpen={isWaModalOpen}
         onClose={() => setIsWaModalOpen(false)}

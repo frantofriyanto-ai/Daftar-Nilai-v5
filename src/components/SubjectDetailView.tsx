@@ -8,6 +8,7 @@ interface SubjectDetailViewProps {
   students: Student[];
   onUpdateGrade: (studentId: string, subject: keyof Student['grades'], grade: SubjectGradeBreakdown | number) => void;
   activeClass?: string;
+  kkm?: number;
   webAppUrl?: string;
   isSyncing?: boolean;
   lastSyncTime?: string;
@@ -20,6 +21,7 @@ export const SubjectDetailView: React.FC<SubjectDetailViewProps> = ({
   students,
   onUpdateGrade,
   activeClass = 'Kelas 12-A',
+  kkm = 75,
   webAppUrl = '',
   isSyncing = false,
   lastSyncTime = '',
@@ -47,7 +49,7 @@ export const SubjectDetailView: React.FC<SubjectDetailViewProps> = ({
   const avg = (finalScores.reduce((a, b) => a + b, 0) / total).toFixed(1);
   const highest = Math.max(...finalScores, 0);
   const lowest = Math.min(...finalScores, 100);
-  const passedCount = finalScores.filter((s) => s >= 75).length;
+  const passedCount = finalScores.filter((s) => s >= kkm).length;
   const passRate = Math.round((passedCount / total) * 100);
 
   const handleStartEdit = (s: Student) => {
@@ -362,7 +364,7 @@ export const SubjectDetailView: React.FC<SubjectDetailViewProps> = ({
 
                 const tpAvg = Math.round((((bd.tp1 ?? 0) + (bd.tp2 ?? 0) + (bd.tp3 ?? 0) + (bd.tp4 ?? 0) + (bd.tp5 ?? 0)) / 5) * 10) / 10;
                 const finalScore = getSubjectFinalScore(bd);
-                const isPassed = finalScore >= 75;
+                const isPassed = finalScore >= kkm;
 
                 const updateFieldValue = (field: keyof SubjectGradeBreakdown, val: number) => {
                   if (isBulkMode) {
