@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
-import { AppView, Student, GradeLog, SubjectGradeBreakdown, getSubjectFinalScore } from './types';
+import { AppView, Student, GradeLog, SubjectGradeBreakdown, getSubjectFinalScore, UserAccount } from './types';
 import { INITIAL_STUDENTS, INITIAL_RECENT_UPDATES, getInitialStudentsForClass } from './data/mockData';
+import { MOCK_USERS } from './data/mockUsers';
 import { Sidebar } from './components/Sidebar';
 import { Topbar } from './components/Topbar';
 import { MetricCards } from './components/MetricCards';
@@ -14,13 +15,33 @@ import { SubjectDetailView } from './components/SubjectDetailView';
 import { TeacherNotesView } from './components/TeacherNotesView';
 import { ExportModal } from './components/ExportModal';
 import { ClassManagerModal } from './components/ClassManagerModal';
+import { LoginModal } from './components/LoginModal';
+import { UserManagementModal } from './components/UserManagementModal';
 import { Download, Share2, FileSpreadsheet, School, ChevronDown } from 'lucide-react';
 
 const DEFAULT_CLASSES = ['Kelas 12-A', 'Kelas 12-B', 'Kelas 11-MIPA 1', 'Kelas 10-A'];
 
 export default function App() {
   const [currentView, setCurrentView] = useState<AppView>('dashboard');
+  
+  // User Account & Role State
+  const [currentUser, setCurrentUser] = useState<UserAccount | null>(() => {
+    const saved = localStorage.getItem('antigravity_current_user');
+    return saved ? JSON.parse(saved) : MOCK_USERS[0];
+  });
+  const [isLoginModalOpen, setIsLoginModalOpen] = useState(false);
+  const [isUserMgmtModalOpen, setIsUserMgmtModalOpen] = useState(false);
+
   const [teacherName, setTeacherName] = useState<string>(() => {
+    const savedUser = localStorage.getItem('antigravity_current_user');
+    if (savedUser) {
+      try {
+        const parsed = JSON.parse(savedUser);
+        return parsed.name || 'Budi Santoso, M.Pd';
+      } catch (e) {
+        // fallback
+      }
+    }
     return localStorage.getItem('antigravity_teacher_name') || 'Budi Santoso, M.Pd';
   });
 
@@ -197,6 +218,24 @@ export default function App() {
   const handleUpdateTeacherName = (newName: string) => {
     setTeacherName(newName);
     localStorage.setItem('antigravity_teacher_name', newName);
+    if (currentUser) {
+      const updatedUser = { ...currentUser, name: newName };
+      setCurrentUser(updatedUser);
+      localStorage.setItem('antigravity_current_user', JSON.stringify(updatedUser));
+    }
+  };
+
+  const handleLoginSuccess = (user: UserAccount) => {
+    setCurrentUser(user);
+    setTeacherName(user.name);
+    localStorage.setItem('antigravity_current_user', JSON.stringify(user));
+    localStorage.setItem('antigravity_teacher_name', user.name);
+  };
+
+  const handleLogout = () => {
+    setCurrentUser(null);
+    localStorage.removeItem('antigravity_current_user');
+    setIsLoginModalOpen(true);
   };
 
   // Real-time Push Student/Grade Update to Google Apps Script Spreadsheet
@@ -391,6 +430,10 @@ export default function App() {
         onOpenClassModal={() => setIsClassModalOpen(true)}
         isMobileOpen={isMobileSidebarOpen}
         onCloseMobile={() => setIsMobileSidebarOpen(false)}
+        currentUser={currentUser}
+        onOpenLoginModal={() => setIsLoginModalOpen(true)}
+        onOpenUserManagementModal={() => setIsUserMgmtModalOpen(true)}
+        onLogout={handleLogout}
       />
 
       {/* Main Content Workspace */}
@@ -405,6 +448,10 @@ export default function App() {
           webAppUrl={webAppUrl}
           lastSyncTime={lastSyncTime}
           onOpenMobileSidebar={() => setIsMobileSidebarOpen(true)}
+          currentUser={currentUser}
+          onOpenLoginModal={() => setIsLoginModalOpen(true)}
+          onOpenUserManagementModal={() => setIsUserMgmtModalOpen(true)}
+          onLogout={handleLogout}
         />
 
         {/* View Container */}
@@ -667,6 +714,19 @@ export default function App() {
         onDeleteClass={handleDeleteClass}
         onUpdateAcademicPeriod={setAcademicPeriod}
         onRestoreData={handleRestoreData}
+      />
+
+      <LoginModal
+        isOpen={isLoginModalOpen}
+        onClose={() => setIsLoginModalOpen(false)}
+        onLoginSuccess={handleLoginSuccess}
+        currentUser={currentUser}
+      />
+
+      <UserManagementModal
+        isOpen={isUserMgmtModalOpen}
+        onClose={() => setIsUserMgmtModalOpen(false)}
+        currentUser={currentUser}
       />
     </div>
   );

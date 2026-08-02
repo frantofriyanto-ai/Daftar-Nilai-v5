@@ -15,9 +15,14 @@ import {
   Check,
   X,
   School,
-  ChevronDown
+  ChevronDown,
+  ShieldCheck,
+  LogOut,
+  UserCheck,
+  LogIn,
+  Settings
 } from 'lucide-react';
-import { AppView } from '../types';
+import { AppView, UserAccount } from '../types';
 
 interface SidebarProps {
   currentView: AppView;
@@ -31,6 +36,10 @@ interface SidebarProps {
   onOpenClassModal: () => void;
   isMobileOpen?: boolean;
   onCloseMobile?: () => void;
+  currentUser: UserAccount | null;
+  onOpenLoginModal: () => void;
+  onOpenUserManagementModal: () => void;
+  onLogout: () => void;
 }
 
 export const Sidebar: React.FC<SidebarProps> = ({
@@ -44,10 +53,16 @@ export const Sidebar: React.FC<SidebarProps> = ({
   onSelectClass,
   onOpenClassModal,
   isMobileOpen = false,
-  onCloseMobile
+  onCloseMobile,
+  currentUser,
+  onOpenLoginModal,
+  onOpenUserManagementModal,
+  onLogout
 }) => {
   const [isEditingTeacher, setIsEditingTeacher] = useState(false);
   const [inputTeacherName, setInputTeacherName] = useState(teacherName);
+
+  const isAdmin = currentUser?.role === 'admin';
 
   const menuItems = [
     { id: 'dashboard' as AppView, label: 'Dashboard', icon: LayoutDashboard },
@@ -196,49 +211,95 @@ export const Sidebar: React.FC<SidebarProps> = ({
 
 
       {/* User Profile Footer */}
-      <div className="p-4 border-t border-indigo-300/15 bg-[#444272] flex items-center justify-between gap-2">
-        <div className="flex items-center gap-3 overflow-hidden">
-          <div className="w-9 h-9 rounded-full bg-amber-200 text-amber-900 overflow-hidden border border-white/20 shrink-0 flex items-center justify-center font-bold text-xs">
-            {getInitials(teacherName)}
+      <div className="p-3.5 border-t border-indigo-300/15 bg-[#444272] flex flex-col gap-2">
+        <div className="flex items-center justify-between gap-2">
+          <div className="flex items-center gap-2.5 overflow-hidden">
+            <div className={`w-9 h-9 rounded-full overflow-hidden border border-white/20 shrink-0 flex items-center justify-center font-bold text-xs ${
+              isAdmin ? 'bg-purple-200 text-purple-900' : 'bg-amber-200 text-amber-900'
+            }`}>
+              {currentUser ? currentUser.avatarInitials : getInitials(teacherName)}
+            </div>
+            
+            {isEditingTeacher ? (
+              <div className="flex items-center gap-1">
+                <input
+                  type="text"
+                  value={inputTeacherName}
+                  onChange={(e) => setInputTeacherName(e.target.value)}
+                  className="w-24 text-xs p-1 bg-white text-slate-900 font-semibold rounded border border-indigo-300 focus:outline-hidden"
+                  autoFocus
+                  onKeyDown={(e) => e.key === 'Enter' && handleSaveTeacher()}
+                />
+                <button onClick={handleSaveTeacher} className="p-1 bg-emerald-600 hover:bg-emerald-700 text-white rounded">
+                  <Check className="w-3 h-3" />
+                </button>
+                <button onClick={() => setIsEditingTeacher(false)} className="p-1 bg-slate-600 hover:bg-slate-700 text-white rounded">
+                  <X className="w-3 h-3" />
+                </button>
+              </div>
+            ) : (
+              <div className="overflow-hidden">
+                <p className="text-xs font-bold text-white truncate" title={currentUser ? currentUser.name : teacherName}>
+                  {currentUser ? currentUser.name : teacherName}
+                </p>
+                <div className="flex items-center gap-1 mt-0.5">
+                  <span className={`inline-flex items-center gap-1 text-[9px] font-extrabold uppercase px-1.5 py-0.2 rounded ${
+                    isAdmin ? 'bg-purple-900/80 text-purple-200' : 'bg-teal-900/80 text-teal-200'
+                  }`}>
+                    {isAdmin ? <ShieldCheck className="w-2.5 h-2.5 text-purple-300" /> : <School className="w-2.5 h-2.5 text-teal-300" />}
+                    {isAdmin ? 'ADMINISTRATOR' : 'GURU KELAS'}
+                  </span>
+                </div>
+              </div>
+            )}
           </div>
-          
-          {isEditingTeacher ? (
-            <div className="flex items-center gap-1">
-              <input
-                type="text"
-                value={inputTeacherName}
-                onChange={(e) => setInputTeacherName(e.target.value)}
-                className="w-28 text-xs p-1 bg-white text-slate-900 font-semibold rounded border border-indigo-300 focus:outline-hidden"
-                autoFocus
-                onKeyDown={(e) => e.key === 'Enter' && handleSaveTeacher()}
-              />
-              <button onClick={handleSaveTeacher} className="p-1 bg-emerald-600 hover:bg-emerald-700 text-white rounded">
-                <Check className="w-3 h-3" />
+
+          <div className="flex items-center gap-1">
+            {!isEditingTeacher && (
+              <button 
+                onClick={() => {
+                  setInputTeacherName(currentUser ? currentUser.name : teacherName);
+                  setIsEditingTeacher(true);
+                }} 
+                className="p-1.5 text-indigo-200 hover:text-white hover:bg-white/10 rounded-lg transition-colors shrink-0"
+                title="Ubah Nama Tampilan"
+              >
+                <Edit2 className="w-3.5 h-3.5" />
               </button>
-              <button onClick={() => setIsEditingTeacher(false)} className="p-1 bg-slate-600 hover:bg-slate-700 text-white rounded">
-                <X className="w-3 h-3" />
-              </button>
-            </div>
-          ) : (
-            <div className="overflow-hidden">
-              <p className="text-xs font-bold text-white truncate" title={teacherName}>{teacherName}</p>
-              <p className="text-[10px] text-indigo-200 font-medium tracking-wider">GURU KELAS</p>
-            </div>
-          )}
+            )}
+          </div>
         </div>
 
-        {!isEditingTeacher && (
-          <button 
-            onClick={() => {
-              setInputTeacherName(teacherName);
-              setIsEditingTeacher(true);
-            }} 
-            className="p-1.5 text-indigo-200 hover:text-white hover:bg-white/10 rounded-lg transition-colors shrink-0"
-            title="Ubah Nama Guru"
+        {/* Login Role Action Buttons */}
+        <div className="pt-2 border-t border-indigo-300/10 flex items-center justify-between gap-1.5 text-[11px]">
+          <button
+            onClick={onOpenLoginModal}
+            className="flex-1 py-1 px-2 bg-indigo-500/30 hover:bg-indigo-500/50 text-indigo-100 rounded-lg font-semibold flex items-center justify-center gap-1 transition-colors cursor-pointer text-[10px]"
+            title="Ganti Peran / Login Akun Guru & Admin"
           >
-            <Edit2 className="w-3.5 h-3.5" />
+            <LogIn className="w-3 h-3 text-amber-300" />
+            <span>Ganti Akun</span>
           </button>
-        )}
+
+          {isAdmin && (
+            <button
+              onClick={onOpenUserManagementModal}
+              className="py-1 px-2 bg-purple-500/40 hover:bg-purple-500/60 text-purple-100 rounded-lg font-semibold flex items-center justify-center gap-1 transition-colors cursor-pointer text-[10px]"
+              title="Kelola Pengguna Pengajar & Admin"
+            >
+              <Settings className="w-3 h-3 text-purple-200" />
+              <span>Kelola User</span>
+            </button>
+          )}
+
+          <button
+            onClick={onLogout}
+            className="p-1 text-indigo-200 hover:text-rose-300 hover:bg-white/10 rounded-lg transition-colors cursor-pointer"
+            title="Keluar (Logout)"
+          >
+            <LogOut className="w-3.5 h-3.5" />
+          </button>
+        </div>
       </div>
     </aside>
     </>

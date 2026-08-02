@@ -11,6 +11,19 @@ export type AppView =
   | 'cocurricular' 
   | 'notes';
 
+export type UserRole = 'admin' | 'teacher';
+
+export interface UserAccount {
+  id: string;
+  name: string;
+  email: string;
+  nip: string;
+  role: UserRole;
+  avatarInitials: string;
+  title: string;
+  assignedClasses?: string[];
+}
+
 export interface SubjectGradeBreakdown {
   tugas: number;     // 20%
   tp1: number;       // TP1
