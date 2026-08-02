@@ -17,6 +17,68 @@ var SUBJECT_CONFIG = [
   { key: 'cocurricular', name: 'Kokurikuler', col: 12 }
 ];
 
+// 0. Automatic Trigger on Open: Adds custom menu '📌 SIM Akademik' and auto-initializes if fresh sheet
+function onOpen(e) {
+  try {
+    var ss = SpreadsheetApp.getActiveSpreadsheet();
+    
+    // Auto initialize if fresh spreadsheet
+    if (!ss.getSheetByName("Akun Guru")) {
+      setupAcademicSheet();
+    }
+    
+    // Create Custom Top Menu in Google Sheets
+    var ui = SpreadsheetApp.getUi();
+    ui.createMenu("📌 SIM Akademik")
+      .addItem("⚡ Auto-Setup & Inisialisasi Sheet", "setupAcademicSheet")
+      .addItem("🔄 Sinkronkan Semua Rincian Nilai", "syncAllComponentSheets")
+      .addSeparator()
+      .addItem("➕ Tambah Sheet Kelas Baru...", "promptAddNewClass")
+      .addItem("👤 Kelola Akun Guru & User", "activateUserSheet")
+      .addToUi();
+  } catch (err) {
+    // ignore UI error if called outside container
+  }
+}
+
+function activateUserSheet() {
+  var ss = SpreadsheetApp.getActiveSpreadsheet();
+  var sheet = ss.getSheetByName("Akun Guru");
+  if (sheet) {
+    ss.setActiveSheet(sheet);
+  } else {
+    setupAcademicSheet();
+  }
+}
+
+function promptAddNewClass() {
+  var ui = SpreadsheetApp.getUi();
+  var response = ui.prompt("Tambah Kelas Baru", "Masukkan Nama Kelas Baru (Contoh: Kelas 10-IPA 2):", ui.ButtonSet.OK_CANCEL);
+  if (response.getSelectedButton() == ui.Button.OK) {
+    var className = response.getResponseText().trim();
+    if (className) {
+      var ss = SpreadsheetApp.getActiveSpreadsheet();
+      setupClassSheet(ss, className);
+      ui.alert("Berhasil!", "Sheet 'Daftar Nilai " + className + "' dan seluruh rincian komponen mata pelajaran telah dibuat.", ui.Button.OK);
+    }
+  }
+}
+
+function syncAllComponentSheets() {
+  var ss = SpreadsheetApp.getActiveSpreadsheet();
+  var sheets = ss.getSheets();
+  var count = 0;
+  for (var i = 0; i < sheets.length; i++) {
+    var name = sheets[i].getName();
+    if (name.indexOf("Daftar Nilai ") === 0) {
+      var className = name.replace("Daftar Nilai ", "").trim();
+      getAcademicData(className);
+      count++;
+    }
+  }
+  SpreadsheetApp.getUi().alert("Sinkronisasi Selesai", "Berhasil menyinkronkan data untuk " + count + " kelas.", SpreadsheetApp.getUi().ButtonSet.OK);
+}
+
 // Helper: Calculate final score based on Kurikulum Merdeka weights
 function calculateSubjectFinal(g) {
   if (typeof g === 'number') return g;

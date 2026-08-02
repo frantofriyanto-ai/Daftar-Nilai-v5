@@ -121,7 +121,7 @@ export const Sidebar: React.FC<SidebarProps> = ({
         transition-transform duration-300 ease-in-out
         ${isMobileOpen ? 'translate-x-0' : '-translate-x-full md:translate-x-0'}
       `}>
-        <div>
+        <div className="flex-1 overflow-y-auto min-h-0">
           {/* Brand Logo Header */}
           <div className="p-5 flex items-center justify-between border-b border-indigo-300/10">
             <div className="flex items-center gap-3">
