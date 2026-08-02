@@ -130,6 +130,15 @@ export default function App() {
     }
   }, [activeClass]);
 
+  // Restrict teacher user to assigned classes only
+  useEffect(() => {
+    if (currentUser?.role === 'teacher' && currentUser.assignedClasses && currentUser.assignedClasses.length > 0) {
+      if (!currentUser.assignedClasses.includes(activeClass)) {
+        setActiveClass(currentUser.assignedClasses[0]);
+      }
+    }
+  }, [currentUser, activeClass]);
+
   // Persist students per activeClass
   useEffect(() => {
     if (activeClass) {
@@ -152,6 +161,11 @@ export default function App() {
 
   // Handlers for Class Management
   const handleSelectClass = (newClassName: string) => {
+    if (currentUser?.role === 'teacher' && currentUser.assignedClasses && currentUser.assignedClasses.length > 0) {
+      if (!currentUser.assignedClasses.includes(newClassName)) {
+        return;
+      }
+    }
     setActiveClass(newClassName);
   };
 
@@ -440,7 +454,29 @@ export default function App() {
           if (res.ok) {
             const json = await res.json();
             if (json.students && Array.isArray(json.students) && json.students.length > 0) {
-              setStudents(json.students);
+              const formattedStudents: Student[] = json.students.map((s: any) => ({
+                id: s.id || `sheet_${activeClass}_${s.nis}`,
+                nis: String(s.nis || ''),
+                name: String(s.name || ''),
+                avatarInitials: s.avatarInitials || (s.name ? s.name.split(' ').map((n: string) => n[0]).join('').substr(0, 2).toUpperCase() : 'SW'),
+                gender: (s.gender === 'P' ? 'P' : 'L') as 'L' | 'P',
+                attendanceRate: typeof s.attendanceRate === 'number' ? s.attendanceRate : Number(s.attendanceRate) || 90,
+                grades: {
+                  math: s.grades?.math ?? 80,
+                  indonesian: s.grades?.indonesian ?? 80,
+                  english: s.grades?.english ?? 80,
+                  science: s.grades?.science ?? 80,
+                  pancasila: s.grades?.pancasila ?? 80,
+                  arts: s.grades?.arts ?? 80,
+                  sundanese: s.grades?.sundanese ?? 80,
+                  cocurricular: s.grades?.cocurricular ?? 80,
+                },
+                notes: s.notes || '',
+                updatedAt: s.updatedAt || 'Terbaru'
+              }));
+
+              setStudents(formattedStudents);
+              localStorage.setItem(`antigravity_students_${activeClass}`, JSON.stringify(formattedStudents));
             }
             if (json.users && Array.isArray(json.users) && json.users.length > 0) {
               localStorage.setItem('antigravity_users_list', JSON.stringify(json.users));

@@ -6,15 +6,14 @@ import {
   UserCheck, 
   Lock, 
   Key, 
-  Mail, 
   School, 
   CheckCircle2, 
-  Sparkles, 
   X, 
   LogIn, 
   User, 
   Building2,
-  AlertCircle
+  AlertCircle,
+  Users
 } from 'lucide-react';
 
 interface LoginModalProps {
@@ -30,10 +29,10 @@ export const LoginModal: React.FC<LoginModalProps> = ({
   onLoginSuccess,
   currentUser
 }) => {
-  const [activeTab, setActiveTab] = useState<'quick' | 'form'>('quick');
+  const [activeTab, setActiveTab] = useState<'accounts' | 'form'>('accounts');
   const [selectedRole, setSelectedRole] = useState<UserRole>('teacher');
-  const [identifier, setIdentifier] = useState('19850315 201001 1 004');
-  const [password, setPassword] = useState('123456');
+  const [identifier, setIdentifier] = useState('');
+  const [password, setPassword] = useState('');
   const [errorMessage, setErrorMessage] = useState('');
   const [isLoading, setIsLoading] = useState(false);
 
@@ -44,13 +43,13 @@ export const LoginModal: React.FC<LoginModalProps> = ({
 
   if (!isOpen) return null;
 
-  const handleQuickLogin = (user: UserAccount) => {
+  const handleSelectAccount = (user: UserAccount) => {
     setIsLoading(true);
     setTimeout(() => {
       onLoginSuccess(user);
       setIsLoading(false);
       onClose();
-    }, 400);
+    }, 300);
   };
 
   const handleFormSubmit = (e: React.FormEvent) => {
@@ -74,23 +73,28 @@ export const LoginModal: React.FC<LoginModalProps> = ({
         setIsLoading(false);
         onClose();
       } else {
-        // If not found in mock array, generate a dynamic user account for demo ease
-        const isAdm = selectedRole === 'admin';
-        const dynamicUser: UserAccount = {
-          id: `user_${Date.now()}`,
-          name: identifier.includes('@') ? identifier.split('@')[0] : identifier,
-          email: identifier.includes('@') ? identifier : `${identifier.replace(/\s+/g, '')}@sekolah.sch.id`,
-          nip: identifier.includes('@') ? '19880000 201500 1 001' : identifier,
-          role: selectedRole,
-          avatarInitials: isAdm ? 'AD' : 'GR',
-          title: isAdm ? 'Administrator Kurikulum' : 'Guru Pengajar',
-          assignedClasses: isAdm ? [] : ['Kelas 12-A']
-        };
-        onLoginSuccess(dynamicUser);
-        setIsLoading(false);
-        onClose();
+        // If user typed custom NIP/Name
+        if (identifier.trim().length > 3) {
+          const isAdm = selectedRole === 'admin';
+          const dynamicUser: UserAccount = {
+            id: `user_${Date.now()}`,
+            name: identifier.includes('@') ? identifier.split('@')[0] : identifier,
+            email: identifier.includes('@') ? identifier : `${identifier.replace(/\s+/g, '')}@sekolah.sch.id`,
+            nip: identifier.includes('@') ? '19880000 201500 1 001' : identifier,
+            role: selectedRole,
+            avatarInitials: isAdm ? 'AD' : 'GR',
+            title: isAdm ? 'Administrator Kurikulum' : 'Guru Pengajar',
+            assignedClasses: isAdm ? [] : ['Kelas 12-A']
+          };
+          onLoginSuccess(dynamicUser);
+          setIsLoading(false);
+          onClose();
+        } else {
+          setErrorMessage('NIP atau email tidak ditemukan. Masukkan NIP atau nama yang valid.');
+          setIsLoading(false);
+        }
       }
-    }, 500);
+    }, 400);
   };
 
   return (
@@ -103,8 +107,8 @@ export const LoginModal: React.FC<LoginModalProps> = ({
               <ShieldCheck className="w-6 h-6" />
             </div>
             <div>
-              <h3 className="font-bold text-lg text-white leading-tight">Masuk Sistem Akademik</h3>
-              <p className="text-xs text-indigo-200 mt-0.5">Pilih Peran: Administrator Kurikulum atau Guru Pengajar</p>
+              <h3 className="font-bold text-lg text-white leading-tight">Masuk Sistem Informasi Akademik</h3>
+              <p className="text-xs text-indigo-200 mt-0.5">Otentikasi Akun Guru Pengajar & Administrator Kurikulum</p>
             </div>
           </div>
 
@@ -122,7 +126,7 @@ export const LoginModal: React.FC<LoginModalProps> = ({
             <div className="flex items-center gap-2">
               <CheckCircle2 className="w-4 h-4 text-emerald-600 shrink-0" />
               <span>
-                Sedang masuk sebagai: <strong className="font-bold">{currentUser.name}</strong> ({currentUser.role === 'admin' ? 'Administrator' : 'Guru'})
+                Sedang Aktif Sebagai: <strong className="font-bold">{currentUser.name}</strong> ({currentUser.role === 'admin' ? 'Administrator' : 'Guru Pengajar'})
               </span>
             </div>
             <span className="text-[10px] bg-emerald-200/60 text-emerald-800 px-2 py-0.5 rounded font-bold uppercase">
@@ -134,15 +138,15 @@ export const LoginModal: React.FC<LoginModalProps> = ({
         {/* Tab Navigation */}
         <div className="flex border-b border-slate-200 bg-slate-50 px-6 pt-3 gap-2">
           <button
-            onClick={() => setActiveTab('quick')}
+            onClick={() => setActiveTab('accounts')}
             className={`pb-2.5 px-3 text-xs font-bold transition-all border-b-2 cursor-pointer flex items-center gap-1.5 ${
-              activeTab === 'quick'
+              activeTab === 'accounts'
                 ? 'border-indigo-600 text-indigo-700'
                 : 'border-transparent text-slate-500 hover:text-slate-800'
             }`}
           >
-            <Sparkles className="w-3.5 h-3.5 text-amber-500" />
-            <span>Mode 1-Klik / Pengujian</span>
+            <Users className="w-3.5 h-3.5 text-indigo-600" />
+            <span>Pilih Akun Pengguna</span>
           </button>
 
           <button
@@ -154,20 +158,20 @@ export const LoginModal: React.FC<LoginModalProps> = ({
             }`}
           >
             <Key className="w-3.5 h-3.5 text-slate-600" />
-            <span>Form Credentials Manual</span>
+            <span>Login NIP & Password</span>
           </button>
         </div>
 
         {/* Body Content */}
         <div className="p-6 overflow-y-auto space-y-6">
-          {activeTab === 'quick' ? (
+          {activeTab === 'accounts' ? (
             <div className="space-y-4">
-              <div className="text-xs text-slate-600 bg-indigo-50/70 border border-indigo-100 p-3 rounded-xl leading-relaxed">
-                <p className="font-semibold text-indigo-950 flex items-center gap-1.5 mb-1">
+              <div className="text-xs text-slate-600 bg-slate-100/80 border border-slate-200 p-3 rounded-xl leading-relaxed">
+                <p className="font-semibold text-slate-900 flex items-center gap-1.5 mb-1">
                   <UserCheck className="w-4 h-4 text-indigo-600" />
-                  Pilih Akun Penguji Langsung (Simulasi Real)
+                  Daftar Akun Pengguna Terdaftar
                 </p>
-                Klik salah satu profil di bawah untuk beralih peran secara instan antara <strong>Guru Kelas</strong> dan <strong>Administrator Akademik</strong>.
+                Pilih profil pengguna di bawah untuk masuk ke sistem. Akun guru otomatis disesuaikan dengan data kelas yang menjadi wewenangnya.
               </div>
 
               {/* Account Cards */}
@@ -179,14 +183,14 @@ export const LoginModal: React.FC<LoginModalProps> = ({
                   return (
                     <button
                       key={user.id}
-                      onClick={() => handleQuickLogin(user)}
+                      onClick={() => handleSelectAccount(user)}
                       disabled={isLoading}
                       className={`p-4 rounded-xl border text-left transition-all hover:shadow-md cursor-pointer relative flex flex-col justify-between ${
                         isSelected
                           ? 'border-emerald-500 bg-emerald-50/40 ring-2 ring-emerald-500/20'
                           : isAdmin
                           ? 'border-purple-200 bg-purple-50/30 hover:bg-purple-50/70'
-                          : 'border-blue-200 bg-blue-50/30 hover:bg-blue-50/70'
+                          : 'border-teal-200 bg-teal-50/30 hover:bg-teal-50/70'
                       }`}
                     >
                       <div>
@@ -194,12 +198,12 @@ export const LoginModal: React.FC<LoginModalProps> = ({
                           <span
                             className={`inline-flex items-center gap-1 text-[10px] font-extrabold uppercase px-2 py-0.5 rounded-full ${
                               isAdmin
-                                ? 'bg-purple-600 text-white'
-                                : 'bg-teal-600 text-white'
+                                ? 'bg-purple-700 text-white'
+                                : 'bg-teal-700 text-white'
                             }`}
                           >
                             {isAdmin ? <ShieldCheck className="w-3 h-3" /> : <School className="w-3 h-3" />}
-                            {isAdmin ? 'ADMINISTRATOR' : 'GURU KELAS'}
+                            {isAdmin ? 'ADMINISTRATOR' : 'GURU PENGAJAR'}
                           </span>
 
                           {isSelected && (
@@ -210,19 +214,19 @@ export const LoginModal: React.FC<LoginModalProps> = ({
                         </div>
 
                         <h4 className="font-bold text-slate-900 text-sm leading-snug">{user.name}</h4>
-                        <p className="text-[11px] text-slate-500 mt-0.5 font-medium">{user.title}</p>
-                        <p className="text-[10px] text-slate-400 mt-1 font-mono">NIP: {user.nip}</p>
+                        <p className="text-[11px] text-slate-600 mt-0.5 font-medium">{user.title}</p>
+                        <p className="text-[10px] text-slate-500 mt-1 font-mono">NIP: {user.nip}</p>
 
                         {!isAdmin && user.assignedClasses && user.assignedClasses.length > 0 && (
                           <div className="mt-2 text-[10px] font-bold text-teal-800 bg-teal-100/80 px-2 py-1 rounded-md inline-block">
-                            🏫 Auto-Switch Ke: {user.assignedClasses[0]}
+                            🏫 Hak Akses Kelas: {user.assignedClasses.join(', ')}
                           </div>
                         )}
                       </div>
 
                       <div className="mt-3 pt-2.5 border-t border-slate-200/60 flex items-center justify-between text-[11px]">
                         <span className="text-slate-500">
-                          {isAdmin ? 'Akses: Semua Kelas' : `Wali Kelas: ${user.assignedClasses?.join(', ')}`}
+                          {isAdmin ? 'Akses: Seluruh Kelas & Sistem' : `Khusus: Data Siswa ${user.assignedClasses?.join(', ')}`}
                         </span>
                         <span className={`font-bold ${isAdmin ? 'text-purple-700' : 'text-teal-700'}`}>
                           Masuk &rarr;
@@ -238,14 +242,14 @@ export const LoginModal: React.FC<LoginModalProps> = ({
               {/* Role Selection */}
               <div>
                 <label className="block text-xs font-bold text-slate-700 mb-1.5">
-                  Pilih Peran Pengguna (Role)
+                  Pilih Peran Pengguna
                 </label>
                 <div className="grid grid-cols-2 gap-3">
                   <button
                     type="button"
                     onClick={() => {
                       setSelectedRole('teacher');
-                      setIdentifier('19850315 201001 1 004');
+                      setIdentifier('');
                     }}
                     className={`p-3 rounded-xl border flex items-center justify-center gap-2 text-xs font-bold transition-all cursor-pointer ${
                       selectedRole === 'teacher'
@@ -261,7 +265,7 @@ export const LoginModal: React.FC<LoginModalProps> = ({
                     type="button"
                     onClick={() => {
                       setSelectedRole('admin');
-                      setIdentifier('admin@sekolah.sch.id');
+                      setIdentifier('');
                     }}
                     className={`p-3 rounded-xl border flex items-center justify-center gap-2 text-xs font-bold transition-all cursor-pointer ${
                       selectedRole === 'admin'
@@ -278,7 +282,7 @@ export const LoginModal: React.FC<LoginModalProps> = ({
               {/* NIP / Email Input */}
               <div>
                 <label className="block text-xs font-bold text-slate-700 mb-1">
-                  {selectedRole === 'teacher' ? 'NIP Guru atau Email' : 'Email Admin / NIP'}
+                  {selectedRole === 'teacher' ? 'NIP Guru atau Email Resmi' : 'Email Administrator / NIP'}
                 </label>
                 <div className="relative">
                   <User className="w-4 h-4 text-slate-400 absolute left-3 top-1/2 -translate-y-1/2" />
@@ -287,7 +291,7 @@ export const LoginModal: React.FC<LoginModalProps> = ({
                     required
                     value={identifier}
                     onChange={(e) => setIdentifier(e.target.value)}
-                    placeholder={selectedRole === 'teacher' ? 'Contoh: 19850315 201001 1 004' : 'admin@sekolah.sch.id'}
+                    placeholder={selectedRole === 'teacher' ? 'Masukkan NIP (Contoh: 19850315...)' : 'admin@sekolah.sch.id'}
                     className="w-full pl-9 pr-3 py-2 text-xs bg-slate-50 border border-slate-300 rounded-lg focus:outline-hidden focus:ring-2 focus:ring-indigo-500/20 focus:border-indigo-500"
                   />
                 </div>
@@ -309,9 +313,6 @@ export const LoginModal: React.FC<LoginModalProps> = ({
                     className="w-full pl-9 pr-3 py-2 text-xs bg-slate-50 border border-slate-300 rounded-lg focus:outline-hidden focus:ring-2 focus:ring-indigo-500/20 focus:border-indigo-500"
                   />
                 </div>
-                <p className="text-[11px] text-slate-400 mt-1">
-                  * Untuk akun demo pengujian, masukkan password bebas (misal: <code>123456</code>)
-                </p>
               </div>
 
               {errorMessage && (
@@ -332,7 +333,7 @@ export const LoginModal: React.FC<LoginModalProps> = ({
                 }`}
               >
                 <LogIn className="w-4 h-4" />
-                <span>{isLoading ? 'Memproses Login...' : `Masuk Sebagai ${selectedRole === 'admin' ? 'Administrator' : 'Guru'}`}</span>
+                <span>{isLoading ? 'Memproses Otentikasi...' : `Masuk Sebagai ${selectedRole === 'admin' ? 'Administrator' : 'Guru Pengajar'}`}</span>
               </button>
             </form>
           )}
@@ -349,7 +350,7 @@ export const LoginModal: React.FC<LoginModalProps> = ({
             onClick={onClose}
             className="px-3 py-1.5 text-xs font-semibold text-slate-600 hover:text-slate-900 cursor-pointer"
           >
-            Batal
+            Tutup
           </button>
         </div>
       </div>

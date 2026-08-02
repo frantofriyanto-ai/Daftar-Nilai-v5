@@ -63,6 +63,16 @@ export const Sidebar: React.FC<SidebarProps> = ({
   const [inputTeacherName, setInputTeacherName] = useState(teacherName);
 
   const isAdmin = currentUser?.role === 'admin';
+  const isTeacher = currentUser?.role === 'teacher';
+
+  const teacherAssigned = currentUser?.assignedClasses || [];
+  const availableClasses = (isTeacher && teacherAssigned.length > 0)
+    ? classList.filter(c => teacherAssigned.includes(c))
+    : classList;
+
+  const finalClassList = availableClasses.length > 0 
+    ? availableClasses 
+    : (teacherAssigned.length > 0 ? teacherAssigned : classList);
 
   const menuItems = [
     { id: 'dashboard' as AppView, label: 'Dashboard', icon: LayoutDashboard },
@@ -142,12 +152,14 @@ export const Sidebar: React.FC<SidebarProps> = ({
                 <School className="w-3.5 h-3.5 text-indigo-300" />
                 <span>Kelas Aktif</span>
               </span>
-              <button
-                onClick={onOpenClassModal}
-                className="text-[10px] text-indigo-300 hover:text-white underline font-semibold cursor-pointer"
-              >
-                Kelola
-              </button>
+              {isAdmin && (
+                <button
+                  onClick={onOpenClassModal}
+                  className="text-[10px] text-indigo-300 hover:text-white underline font-semibold cursor-pointer"
+                >
+                  Kelola
+                </button>
+              )}
             </div>
 
             <div className="relative">
@@ -155,6 +167,10 @@ export const Sidebar: React.FC<SidebarProps> = ({
                 value={activeClass}
                 onChange={(e) => {
                   if (e.target.value === '__MANAGE__') {
+                    if (!isAdmin) {
+                      alert('Akses Terbatas: Hanya Administrator Kurikulum yang dapat menambah/mengubah kelas.');
+                      return;
+                    }
                     onOpenClassModal();
                   } else {
                     onSelectClass(e.target.value);
@@ -162,14 +178,16 @@ export const Sidebar: React.FC<SidebarProps> = ({
                 }}
                 className="w-full text-xs font-bold text-white bg-[#535085] hover:bg-[#5B5894] border border-indigo-300/30 rounded-lg py-1.5 pl-2.5 pr-7 focus:outline-hidden cursor-pointer appearance-none transition-colors"
               >
-                {classList.map((cls) => (
+                {finalClassList.map((cls) => (
                   <option key={cls} value={cls} className="bg-[#4B497B] text-white">
-                    {cls}
+                    {cls} {isTeacher ? '(Kelas Pengampu)' : ''}
                   </option>
                 ))}
-                <option value="__MANAGE__" className="bg-[#3E3C67] text-amber-300 font-bold">
-                  + Ubah / Kelola Kelas...
-                </option>
+                {isAdmin && (
+                  <option value="__MANAGE__" className="bg-[#3E3C67] text-amber-300 font-bold">
+                    + Ubah / Kelola Kelas...
+                  </option>
+                )}
               </select>
               <ChevronDown className="w-3.5 h-3.5 text-indigo-200 absolute right-2.5 top-1/2 -translate-y-1/2 pointer-events-none" />
             </div>

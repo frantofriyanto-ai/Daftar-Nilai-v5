@@ -9,7 +9,7 @@ export const MOCK_USERS: UserAccount[] = [
     role: 'teacher',
     avatarInitials: 'BS',
     title: 'Wali Kelas 12-A',
-    assignedClasses: ['Kelas 12-A', 'Kelas 12-B']
+    assignedClasses: ['Kelas 12-A']
   },
   {
     id: 'user_guru_2',
@@ -18,8 +18,8 @@ export const MOCK_USERS: UserAccount[] = [
     nip: '19900822 201502 2 008',
     role: 'teacher',
     avatarInitials: 'SN',
-    title: 'Guru Mapel & Wali Kelas 11-MIPA 1',
-    assignedClasses: ['Kelas 11-MIPA 1', 'Kelas 10-A']
+    title: 'Wali Kelas 11-MIPA 1',
+    assignedClasses: ['Kelas 11-MIPA 1']
   },
   {
     id: 'user_admin_1',

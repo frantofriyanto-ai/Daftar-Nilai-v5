@@ -183,6 +183,17 @@ function getAcademicData(className) {
   var values = sheet.getDataRange().getValues();
   var students = [];
 
+  var subjectCols = [
+    { key: 'math', idx: 4 },
+    { key: 'indonesian', idx: 5 },
+    { key: 'english', idx: 6 },
+    { key: 'science', idx: 7 },
+    { key: 'pancasila', idx: 8 },
+    { key: 'arts', idx: 9 },
+    { key: 'sundanese', idx: 10 },
+    { key: 'cocurricular', idx: 11 }
+  ];
+
   if (values.length > 1) {
     for (var i = 1; i < values.length; i++) {
       var row = values[i];
@@ -203,16 +214,27 @@ function getAcademicData(className) {
       }
 
       if (!gradesObj) {
-        gradesObj = {
-          math: Number(row[4]) || 0,
-          indonesian: Number(row[5]) || 0,
-          english: Number(row[6]) || 0,
-          science: Number(row[7]) || 0,
-          pancasila: Number(row[8]) || 0,
-          arts: Number(row[9]) || 0,
-          sundanese: Number(row[10]) || 0,
-          cocurricular: Number(row[11]) || 0
-        };
+        gradesObj = {};
+      }
+
+      // Reconcile direct cell edits in Spreadsheet with gradesObj breakdown
+      for (var s = 0; s < subjectCols.length; s++) {
+        var item = subjectCols[s];
+        var cellVal = row[item.idx];
+        if (cellVal !== '' && cellVal !== null && cellVal !== undefined && !isNaN(Number(cellVal))) {
+          var numVal = Number(cellVal);
+          if (gradesObj[item.key] !== undefined && gradesObj[item.key] !== null) {
+            var currentCalc = calculateSubjectFinal(gradesObj[item.key]);
+            // If cell value in Spreadsheet was edited directly and differs from JSON breakdown
+            if (Math.abs(currentCalc - numVal) > 0.05) {
+              gradesObj[item.key] = makeSampleSubjectBreakdown(numVal);
+            }
+          } else {
+            gradesObj[item.key] = makeSampleSubjectBreakdown(numVal);
+          }
+        } else if (!gradesObj[item.key]) {
+          gradesObj[item.key] = makeSampleSubjectBreakdown(80);
+        }
       }
 
       students.push({
@@ -381,6 +403,55 @@ function batchSyncUsers(users) {
     }
   }
   return users.length;
+}
+
+// 7. Automatic Trigger on Edit (Auto-calculates timestamps & updates JSON if spreadsheet cells are edited directly)
+function onEdit(e) {
+  try {
+    if (!e || !e.range) return;
+    var range = e.range;
+    var sheet = range.getSheet();
+    var sheetName = sheet.getName();
+    
+    if (sheetName.indexOf("Daftar Nilai") === 0 && range.getRow() > 1) {
+      var row = range.getRow();
+      sheet.getRange(row, 15).setValue(new Date());
+
+      var col = range.getColumn();
+      if (col >= 5 && col <= 12) {
+        var rowData = sheet.getRange(row, 1, 1, 14).getValues()[0];
+        var gradesObj = {};
+        if (rowData[13] && typeof rowData[13] === 'string' && rowData[13].trim().startsWith('{')) {
+          try { gradesObj = JSON.parse(rowData[13]); } catch (err) { gradesObj = {}; }
+        }
+        
+        var subjectCols = [
+          { key: 'math', c: 5 },
+          { key: 'indonesian', c: 6 },
+          { key: 'english', c: 7 },
+          { key: 'science', c: 8 },
+          { key: 'pancasila', c: 9 },
+          { key: 'arts', c: 10 },
+          { key: 'sundanese', c: 11 },
+          { key: 'cocurricular', c: 12 }
+        ];
+
+        for (var s = 0; s < subjectCols.length; s++) {
+          var item = subjectCols[s];
+          var val = Number(rowData[item.c - 1]);
+          if (!isNaN(val) && rowData[item.c - 1] !== '') {
+            var currCalc = calculateSubjectFinal(gradesObj[item.key]);
+            if (Math.abs(currCalc - val) > 0.05 || !gradesObj[item.key]) {
+              gradesObj[item.key] = makeSampleSubjectBreakdown(val);
+            }
+          }
+        }
+        sheet.getRange(row, 14).setValue(JSON.stringify(gradesObj));
+      }
+    }
+  } catch (err) {
+    // ignore
+  }
 }
 `;
 
