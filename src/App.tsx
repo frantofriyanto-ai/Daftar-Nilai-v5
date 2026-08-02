@@ -63,6 +63,7 @@ export default function App() {
   const [isAppsScriptOpen, setIsAppsScriptOpen] = useState(false);
   const [isExportOpen, setIsExportOpen] = useState(false);
   const [exportSingleStudent, setExportSingleStudent] = useState<Student | undefined>(undefined);
+  const [isMobileSidebarOpen, setIsMobileSidebarOpen] = useState(false);
 
   // Sync activeClass changes with localStorage & student roster
   useEffect(() => {
@@ -189,18 +190,51 @@ export default function App() {
   const totalAtt = students.reduce((acc, s) => acc + (s.attendanceRate || 0), 0);
   const classAttendance = totalStudents > 0 ? Math.round(totalAtt / totalStudents) : 94;
 
+  const [lastSyncTime, setLastSyncTime] = useState<string>(() => {
+    return localStorage.getItem('antigravity_last_sync_time') || '';
+  });
+
   const handleUpdateTeacherName = (newName: string) => {
     setTeacherName(newName);
     localStorage.setItem('antigravity_teacher_name', newName);
+  };
+
+  // Real-time Push Student/Grade Update to Google Apps Script Spreadsheet
+  const pushStudentToSpreadsheet = async (studentToSync: Student) => {
+    if (!webAppUrl) return;
+    setIsSyncing(true);
+    try {
+      await fetch(webAppUrl, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'text/plain;charset=utf-8'
+        },
+        body: JSON.stringify({
+          action: 'updateStudent',
+          student: studentToSync,
+          activeClass: activeClass
+        })
+      });
+      const now = new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit', second: '2-digit' });
+      setLastSyncTime(now);
+      localStorage.setItem('antigravity_last_sync_time', now);
+    } catch (err) {
+      console.warn('Real-time sync to spreadsheet warning:', err);
+    } finally {
+      setIsSyncing(false);
+    }
   };
 
   // Handlers
   const handleAddStudent = (newStudent: Student) => {
     setStudents((prev) => [newStudent, ...prev]);
 
+    // Push new student to spreadsheet real-time
+    pushStudentToSpreadsheet(newStudent);
+
     // Add log entry
     const newLog: GradeLog = {
-      id: `log_${Date.now()}`,
+      id: `log_${Date.now()}_${Math.random().toString(36).substring(2, 9)}`,
       studentId: newStudent.id,
       studentName: newStudent.name,
       studentInitials: newStudent.avatarInitials,
@@ -213,10 +247,12 @@ export default function App() {
   };
 
   const handleUpdateGrade = (studentId: string, subjectKey: keyof Student['grades'], score: SubjectGradeBreakdown | number) => {
+    let updatedStudentObj: Student | null = null;
+
     setStudents((prev) =>
       prev.map((s) => {
         if (s.id === studentId) {
-          return {
+          const updated = {
             ...s,
             grades: {
               ...s.grades,
@@ -224,10 +260,17 @@ export default function App() {
             },
             updatedAt: 'Baru saja'
           };
+          updatedStudentObj = updated;
+          return updated;
         }
         return s;
       })
     );
+
+    // Sync updated student to Google Spreadsheet in real-time
+    if (updatedStudentObj) {
+      pushStudentToSpreadsheet(updatedStudentObj);
+    }
 
     const targetStudent = students.find((s) => s.id === studentId);
     if (targetStudent) {
@@ -245,7 +288,7 @@ export default function App() {
       const finalVal = getSubjectFinalScore(score);
 
       const newLog: GradeLog = {
-        id: `log_${Date.now()}`,
+        id: `log_${Date.now()}_${Math.random().toString(36).substring(2, 9)}`,
         studentId: targetStudent.id,
         studentName: targetStudent.name,
         studentInitials: targetStudent.avatarInitials,
@@ -260,33 +303,66 @@ export default function App() {
 
   const handleUpdateStudent = (updatedStudent: Student) => {
     setStudents((prev) => prev.map((s) => (s.id === updatedStudent.id ? updatedStudent : s)));
+    pushStudentToSpreadsheet(updatedStudent);
   };
 
   const handleUpdateNotes = (studentId: string, notes: string) => {
+    let updatedStudentObj: Student | null = null;
     setStudents((prev) =>
-      prev.map((s) => (s.id === studentId ? { ...s, notes, updatedAt: 'Baru saja' } : s))
+      prev.map((s) => {
+        if (s.id === studentId) {
+          const updated = { ...s, notes, updatedAt: 'Baru saja' };
+          updatedStudentObj = updated;
+          return updated;
+        }
+        return s;
+      })
     );
+    if (updatedStudentObj) {
+      pushStudentToSpreadsheet(updatedStudentObj);
+    }
   };
 
   const handleSaveWebAppUrl = (url: string) => {
     setWebAppUrl(url);
     localStorage.setItem('antigravity_webapp_url', url);
+    if (url) {
+      handleSyncData();
+    }
   };
 
   const handleSyncData = async () => {
     setIsSyncing(true);
     try {
       if (webAppUrl) {
-        const res = await fetch(`${webAppUrl}?action=getData`);
+        // 1. Send current student state batch to Google Sheets
+        await fetch(webAppUrl, {
+          method: 'POST',
+          headers: { 'Content-Type': 'text/plain;charset=utf-8' },
+          body: JSON.stringify({
+            action: 'syncAll',
+            students: students,
+            activeClass: activeClass
+          })
+        }).catch(() => {});
+
+        // 2. Pull updated data from Google Sheets
+        const res = await fetch(`${webAppUrl}?action=getData&class=${encodeURIComponent(activeClass)}`);
         if (res.ok) {
           const json = await res.json();
-          if (json.students && Array.isArray(json.students)) {
+          if (json.students && Array.isArray(json.students) && json.students.length > 0) {
             setStudents(json.students);
           }
         }
+        const now = new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit', second: '2-digit' });
+        setLastSyncTime(now);
+        localStorage.setItem('antigravity_last_sync_time', now);
       } else {
         // Simulated sync delay if no URL provided
-        await new Promise((resolve) => setTimeout(resolve, 1200));
+        await new Promise((resolve) => setTimeout(resolve, 1000));
+        const now = new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit', second: '2-digit' });
+        setLastSyncTime(now);
+        localStorage.setItem('antigravity_last_sync_time', now);
       }
     } catch (err) {
       console.warn("Sync error, fallback to local state:", err);
@@ -313,6 +389,8 @@ export default function App() {
         classList={classList}
         onSelectClass={handleSelectClass}
         onOpenClassModal={() => setIsClassModalOpen(true)}
+        isMobileOpen={isMobileSidebarOpen}
+        onCloseMobile={() => setIsMobileSidebarOpen(false)}
       />
 
       {/* Main Content Workspace */}
@@ -324,17 +402,20 @@ export default function App() {
           onOpenQuickAdd={() => setIsQuickAddOpen(true)}
           onOpenAppsScriptModal={() => setIsAppsScriptOpen(true)}
           isSyncing={isSyncing}
+          webAppUrl={webAppUrl}
+          lastSyncTime={lastSyncTime}
+          onOpenMobileSidebar={() => setIsMobileSidebarOpen(true)}
         />
 
         {/* View Container */}
-        <main className="flex-1 overflow-y-auto p-6 space-y-6">
+        <main className="flex-1 overflow-y-auto p-3 sm:p-6 space-y-4 sm:space-y-6">
           {currentView === 'dashboard' && (
             <>
               {/* Academic Overview Title Header Banner */}
-              <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+              <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 sm:gap-4">
                 <div>
-                  <h1 className="text-2xl font-bold text-slate-900 tracking-tight">Ringkasan Akademik</h1>
-                  <div className="flex items-center gap-2 mt-1">
+                  <h1 className="text-xl sm:text-2xl font-bold text-slate-900 tracking-tight">Ringkasan Akademik</h1>
+                  <div className="flex items-center gap-2 mt-1 flex-wrap">
                     <button
                       onClick={() => setIsClassModalOpen(true)}
                       className="group inline-flex items-center gap-1.5 px-3 py-1 bg-indigo-50 hover:bg-indigo-100 border border-indigo-200/80 rounded-lg text-xs font-bold text-indigo-900 transition-colors cursor-pointer shadow-2xs"
@@ -346,14 +427,14 @@ export default function App() {
                       <span className="text-indigo-700 font-semibold">{academicPeriod}</span>
                       <ChevronDown className="w-3.5 h-3.5 text-indigo-500 group-hover:text-indigo-700 ml-0.5" />
                     </button>
-                    <span className="text-[11px] font-medium text-slate-400">(Klik untuk Ubah Kelas)</span>
+                    <span className="text-[11px] font-medium text-slate-400 hidden xs:inline">(Klik untuk Ubah Kelas)</span>
                   </div>
                 </div>
 
-                <div className="flex items-center gap-2.5">
+                <div className="flex items-center gap-2 flex-wrap sm:flex-nowrap">
                   <button
                     onClick={() => setIsClassModalOpen(true)}
-                    className="flex items-center gap-1.5 px-3.5 py-2 text-xs font-semibold text-indigo-700 bg-indigo-50 border border-indigo-200 rounded-lg hover:bg-indigo-100 shadow-xs transition-colors cursor-pointer"
+                    className="flex-1 sm:flex-initial flex items-center justify-center gap-1.5 px-3 py-2 text-xs font-semibold text-indigo-700 bg-indigo-50 border border-indigo-200 rounded-lg hover:bg-indigo-100 shadow-xs transition-colors cursor-pointer"
                   >
                     <School className="w-3.5 h-3.5" />
                     <span>Ubah Kelas</span>
@@ -361,7 +442,7 @@ export default function App() {
 
                   <button
                     onClick={() => handleOpenExportModal()}
-                    className="flex items-center gap-1.5 px-3.5 py-2 text-xs font-semibold text-slate-700 bg-white border border-slate-200 rounded-lg hover:bg-slate-50 shadow-xs transition-colors cursor-pointer"
+                    className="flex-1 sm:flex-initial flex items-center justify-center gap-1.5 px-3 py-2 text-xs font-semibold text-slate-700 bg-white border border-slate-200 rounded-lg hover:bg-slate-50 shadow-xs transition-colors cursor-pointer"
                   >
                     <Download className="w-3.5 h-3.5" />
                     <span>Ekspor Laporan</span>
@@ -369,7 +450,7 @@ export default function App() {
 
                   <button
                     onClick={() => setIsAppsScriptOpen(true)}
-                    className="flex items-center gap-1.5 px-3.5 py-2 text-xs font-semibold text-white bg-[#0B63E5] hover:bg-blue-700 rounded-lg shadow-xs transition-colors cursor-pointer"
+                    className="w-full sm:w-auto flex items-center justify-center gap-1.5 px-3.5 py-2 text-xs font-semibold text-white bg-[#0B63E5] hover:bg-blue-700 rounded-lg shadow-xs transition-colors cursor-pointer"
                   >
                     <Share2 className="w-3.5 h-3.5" />
                     <span>Integrasi Drive / Sheet</span>
@@ -412,6 +493,11 @@ export default function App() {
               onUpdateStudent={handleUpdateStudent}
               onOpenExportModal={handleOpenExportModal}
               activeClass={activeClass}
+              webAppUrl={webAppUrl}
+              isSyncing={isSyncing}
+              lastSyncTime={lastSyncTime}
+              onOpenAppsScriptModal={() => setIsAppsScriptOpen(true)}
+              onManualSync={handleSyncData}
             />
           )}
 
@@ -421,6 +507,11 @@ export default function App() {
               students={students}
               onUpdateGrade={handleUpdateGrade}
               activeClass={activeClass}
+              webAppUrl={webAppUrl}
+              isSyncing={isSyncing}
+              lastSyncTime={lastSyncTime}
+              onOpenAppsScriptModal={() => setIsAppsScriptOpen(true)}
+              onManualSync={handleSyncData}
             />
           )}
 
@@ -430,6 +521,11 @@ export default function App() {
               students={students}
               onUpdateGrade={handleUpdateGrade}
               activeClass={activeClass}
+              webAppUrl={webAppUrl}
+              isSyncing={isSyncing}
+              lastSyncTime={lastSyncTime}
+              onOpenAppsScriptModal={() => setIsAppsScriptOpen(true)}
+              onManualSync={handleSyncData}
             />
           )}
 
@@ -439,6 +535,11 @@ export default function App() {
               students={students}
               onUpdateGrade={handleUpdateGrade}
               activeClass={activeClass}
+              webAppUrl={webAppUrl}
+              isSyncing={isSyncing}
+              lastSyncTime={lastSyncTime}
+              onOpenAppsScriptModal={() => setIsAppsScriptOpen(true)}
+              onManualSync={handleSyncData}
             />
           )}
 
@@ -448,6 +549,11 @@ export default function App() {
               students={students}
               onUpdateGrade={handleUpdateGrade}
               activeClass={activeClass}
+              webAppUrl={webAppUrl}
+              isSyncing={isSyncing}
+              lastSyncTime={lastSyncTime}
+              onOpenAppsScriptModal={() => setIsAppsScriptOpen(true)}
+              onManualSync={handleSyncData}
             />
           )}
 
@@ -457,6 +563,11 @@ export default function App() {
               students={students}
               onUpdateGrade={handleUpdateGrade}
               activeClass={activeClass}
+              webAppUrl={webAppUrl}
+              isSyncing={isSyncing}
+              lastSyncTime={lastSyncTime}
+              onOpenAppsScriptModal={() => setIsAppsScriptOpen(true)}
+              onManualSync={handleSyncData}
             />
           )}
 
@@ -466,6 +577,11 @@ export default function App() {
               students={students}
               onUpdateGrade={handleUpdateGrade}
               activeClass={activeClass}
+              webAppUrl={webAppUrl}
+              isSyncing={isSyncing}
+              lastSyncTime={lastSyncTime}
+              onOpenAppsScriptModal={() => setIsAppsScriptOpen(true)}
+              onManualSync={handleSyncData}
             />
           )}
 
@@ -475,6 +591,11 @@ export default function App() {
               students={students}
               onUpdateGrade={handleUpdateGrade}
               activeClass={activeClass}
+              webAppUrl={webAppUrl}
+              isSyncing={isSyncing}
+              lastSyncTime={lastSyncTime}
+              onOpenAppsScriptModal={() => setIsAppsScriptOpen(true)}
+              onManualSync={handleSyncData}
             />
           )}
 
@@ -484,6 +605,11 @@ export default function App() {
               students={students}
               onUpdateGrade={handleUpdateGrade}
               activeClass={activeClass}
+              webAppUrl={webAppUrl}
+              isSyncing={isSyncing}
+              lastSyncTime={lastSyncTime}
+              onOpenAppsScriptModal={() => setIsAppsScriptOpen(true)}
+              onManualSync={handleSyncData}
             />
           )}
 

@@ -1,20 +1,30 @@
 import React, { useState } from 'react';
 import { Student, SubjectGradeBreakdown, getSubjectGradeBreakdown, getSubjectFinalScore } from '../types';
 import { SUBJECT_INFO_MAP } from '../data/mockData';
-import { Award, TrendingUp, AlertCircle, CheckCircle2, Edit2, Check, Percent, HelpCircle, Layers, X, Copy, SlidersHorizontal } from 'lucide-react';
+import { Award, TrendingUp, AlertCircle, CheckCircle2, Edit2, Check, Percent, HelpCircle, Layers, X, Copy, SlidersHorizontal, FileSpreadsheet, RefreshCw, Zap } from 'lucide-react';
 
 interface SubjectDetailViewProps {
   subjectKey: keyof Student['grades'];
   students: Student[];
   onUpdateGrade: (studentId: string, subject: keyof Student['grades'], grade: SubjectGradeBreakdown | number) => void;
   activeClass?: string;
+  webAppUrl?: string;
+  isSyncing?: boolean;
+  lastSyncTime?: string;
+  onOpenAppsScriptModal?: () => void;
+  onManualSync?: () => Promise<void>;
 }
 
 export const SubjectDetailView: React.FC<SubjectDetailViewProps> = ({
   subjectKey,
   students,
   onUpdateGrade,
-  activeClass = 'Kelas 12-A'
+  activeClass = 'Kelas 12-A',
+  webAppUrl = '',
+  isSyncing = false,
+  lastSyncTime = '',
+  onOpenAppsScriptModal,
+  onManualSync
 }) => {
   const info = Object.values(SUBJECT_INFO_MAP).find((s) => s.key === subjectKey) || {
     label: 'Mata Pelajaran',
@@ -115,6 +125,62 @@ export const SubjectDetailView: React.FC<SubjectDetailViewProps> = ({
 
   return (
     <div className="space-y-6">
+      {/* Real-time Google Spreadsheet Sync Status Banner */}
+      <div className={`p-3.5 px-4 rounded-xl border flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3 text-xs transition-colors ${
+        webAppUrl 
+          ? 'bg-emerald-50/90 border-emerald-200 text-emerald-900 shadow-2xs' 
+          : 'bg-indigo-50/80 border-indigo-200/80 text-indigo-950 shadow-2xs'
+      }`}>
+        <div className="flex items-center gap-2.5">
+          <div className={`p-2 rounded-lg shrink-0 ${webAppUrl ? 'bg-emerald-100 text-emerald-700' : 'bg-indigo-100 text-indigo-700'}`}>
+            <FileSpreadsheet className="w-4 h-4" />
+          </div>
+          <div>
+            <div className="flex items-center gap-2 flex-wrap">
+              <span className="font-bold">
+                {webAppUrl ? 'Hubungan Real-Time Google Spreadsheet Aktif' : 'Otomatisasi Real-Time Google Spreadsheet'}
+              </span>
+              {webAppUrl ? (
+                <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-[10px] font-extrabold bg-emerald-600 text-white shadow-2xs">
+                  <span className="w-1.5 h-1.5 rounded-full bg-white animate-pulse"></span>
+                  TERHUBUNG REALTIME
+                </span>
+              ) : (
+                <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-[10px] font-semibold bg-indigo-100 text-indigo-700">
+                  Manual / Offline Mode
+                </span>
+              )}
+            </div>
+            <p className="text-[11px] mt-0.5 opacity-90 leading-tight">
+              {webAppUrl 
+                ? `Setiap perubahan nilai ${info.label} otomatis terkirim langsung ke Spreadsheet Google. ${lastSyncTime ? `Terakhir tersimpan: ${lastSyncTime}` : ''}`
+                : 'Hubungkan Web App URL Apps Script agar setiap pengeditan nilai di dashboard ini langsung ter-update di Google Sheets.'}
+            </p>
+          </div>
+        </div>
+
+        <div className="flex items-center gap-2 shrink-0 self-end sm:self-auto">
+          {webAppUrl ? (
+            <button
+              onClick={onManualSync}
+              disabled={isSyncing}
+              className="inline-flex items-center gap-1.5 px-3 py-1.5 bg-emerald-700 hover:bg-emerald-800 text-white rounded-lg font-semibold text-xs shadow-2xs transition-colors cursor-pointer disabled:opacity-50"
+            >
+              <RefreshCw className={`w-3.5 h-3.5 ${isSyncing ? 'animate-spin' : ''}`} />
+              <span>{isSyncing ? 'Menyinkronkan...' : 'Sinkronkan Sekarang'}</span>
+            </button>
+          ) : (
+            <button
+              onClick={onOpenAppsScriptModal}
+              className="inline-flex items-center gap-1.5 px-3 py-1.5 bg-[#0B63E5] hover:bg-blue-700 text-white rounded-lg font-semibold text-xs shadow-2xs transition-colors cursor-pointer"
+            >
+              <Zap className="w-3.5 h-3.5 text-amber-300" />
+              <span>Hubungkan Real-Time</span>
+            </button>
+          )}
+        </div>
+      </div>
+
       {/* Header Banner */}
       <div className="bg-gradient-to-r from-[#4C4B7C] to-[#5D5B8D] text-white p-6 rounded-2xl shadow-sm flex flex-col md:flex-row justify-between items-start md:items-center gap-4">
         <div>
@@ -125,18 +191,18 @@ export const SubjectDetailView: React.FC<SubjectDetailViewProps> = ({
           <p className="text-xs text-indigo-100 mt-1">Bobot Penilaian: Tugas (20%) + TP1-5 (25%) + Formatif (20%) + Sumatif (30%) + Kehadiran (5%)</p>
         </div>
 
-        <div className="flex gap-4 shrink-0">
-          <div className="bg-white/10 backdrop-blur-xs px-4 py-2.5 rounded-xl text-center border border-white/10">
-            <p className="text-[10px] text-indigo-200 uppercase font-semibold">Rata-Rata Kelas</p>
-            <p className="text-xl font-extrabold">{avg}</p>
+        <div className="grid grid-cols-3 sm:flex gap-2 sm:gap-4 shrink-0 w-full md:w-auto">
+          <div className="bg-white/10 backdrop-blur-xs px-2.5 sm:px-4 py-2 sm:py-2.5 rounded-xl text-center border border-white/10">
+            <p className="text-[9px] sm:text-[10px] text-indigo-200 uppercase font-semibold">Rata-Rata</p>
+            <p className="text-base sm:text-xl font-extrabold">{avg}</p>
           </div>
-          <div className="bg-white/10 backdrop-blur-xs px-4 py-2.5 rounded-xl text-center border border-white/10">
-            <p className="text-[10px] text-indigo-200 uppercase font-semibold">Nilai Tertinggi</p>
-            <p className="text-xl font-extrabold text-amber-300">{highest}</p>
+          <div className="bg-white/10 backdrop-blur-xs px-2.5 sm:px-4 py-2 sm:py-2.5 rounded-xl text-center border border-white/10">
+            <p className="text-[9px] sm:text-[10px] text-indigo-200 uppercase font-semibold">Tertinggi</p>
+            <p className="text-base sm:text-xl font-extrabold text-amber-300">{highest}</p>
           </div>
-          <div className="bg-white/10 backdrop-blur-xs px-4 py-2.5 rounded-xl text-center border border-white/10">
-            <p className="text-[10px] text-indigo-200 uppercase font-semibold">Tuntas KKM</p>
-            <p className="text-xl font-extrabold text-emerald-300">{passRate}%</p>
+          <div className="bg-white/10 backdrop-blur-xs px-2.5 sm:px-4 py-2 sm:py-2.5 rounded-xl text-center border border-white/10">
+            <p className="text-[9px] sm:text-[10px] text-indigo-200 uppercase font-semibold">Tuntas KKM</p>
+            <p className="text-base sm:text-xl font-extrabold text-emerald-300">{passRate}%</p>
           </div>
         </div>
       </div>

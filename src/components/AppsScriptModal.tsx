@@ -222,12 +222,20 @@ export const AppsScriptModal: React.FC<AppsScriptModalProps> = ({
             <div className="space-y-6 max-w-xl mx-auto py-2">
               <div className="bg-white p-6 rounded-2xl border border-slate-200 shadow-sm space-y-4">
                 <div className="flex items-center gap-3">
-                  <div className="w-10 h-10 rounded-xl bg-teal-100 text-teal-700 flex items-center justify-center">
+                  <div className="w-10 h-10 rounded-xl bg-teal-100 text-teal-700 flex items-center justify-center font-bold">
                     <RefreshCw className="w-5 h-5" />
                   </div>
                   <div>
-                    <h4 className="text-sm font-bold text-slate-900">Sinkronkan Langsung dengan Google Sheets Web App</h4>
-                    <p className="text-xs text-slate-500">Masukkan URL Web App hasil Deploy Google Apps Script Anda di sini.</p>
+                    <h4 className="text-sm font-bold text-slate-900">Hubungan Real-Time Google Spreadsheet</h4>
+                    <p className="text-xs text-slate-500">Otomatisasi pengiriman nilai & data siswa secara langsung dari Dashboard ke Google Sheets.</p>
+                  </div>
+                </div>
+
+                <div className="p-3 bg-emerald-50 border border-emerald-200 rounded-xl text-xs text-emerald-900 flex items-center gap-2.5">
+                  <div className="w-2.5 h-2.5 rounded-full bg-emerald-500 animate-pulse shrink-0" />
+                  <div>
+                    <span className="font-bold">Real-time Assessment Sync Enabled</span>
+                    <p className="text-[11px] text-emerald-800 mt-0.5">Setiap kali Anda mengedit nilai Tugas, TP, Formatif, Sumatif, Kehadiran, atau Catatan Siswa, data langsung dikirim ke Google Spreadsheet via Web App `doPost`.</p>
                   </div>
                 </div>
 
@@ -246,7 +254,7 @@ export const AppsScriptModal: React.FC<AppsScriptModalProps> = ({
                   <div className="flex items-center justify-between pt-2">
                     <button
                       type="submit"
-                      className="px-4 py-2 bg-teal-600 hover:bg-teal-700 text-white font-semibold text-xs rounded-lg transition-colors shadow-xs"
+                      className="px-4 py-2 bg-teal-600 hover:bg-teal-700 text-white font-semibold text-xs rounded-lg transition-colors shadow-xs cursor-pointer"
                     >
                       Simpan Web App URL
                     </button>
@@ -255,17 +263,17 @@ export const AppsScriptModal: React.FC<AppsScriptModalProps> = ({
                       type="button"
                       onClick={onSyncData}
                       disabled={isSyncing}
-                      className="px-4 py-2 bg-slate-800 hover:bg-slate-900 text-white font-semibold text-xs rounded-lg transition-colors flex items-center gap-1.5"
+                      className="px-4 py-2 bg-slate-800 hover:bg-slate-900 text-white font-semibold text-xs rounded-lg transition-colors flex items-center gap-1.5 cursor-pointer disabled:opacity-50"
                     >
                       <RefreshCw className={`w-3.5 h-3.5 ${isSyncing ? 'animate-spin' : ''}`} />
-                      <span>{isSyncing ? 'Menyingkronkan...' : 'Tes Sinkron Data Now'}</span>
+                      <span>{isSyncing ? 'Menyinkronkan...' : 'Tes & Sync Real-Time Now'}</span>
                     </button>
                   </div>
 
                   {saveSuccess && (
                     <div className="p-3 bg-emerald-50 border border-emerald-200 text-emerald-800 rounded-lg text-xs flex items-center gap-2">
                       <CheckCircle2 className="w-4 h-4 text-emerald-600 shrink-0" />
-                      <span>URL Web App Google Sheets berhasil disimpan & siap digunakan!</span>
+                      <span>URL Web App Google Sheets berhasil disimpan! Penilaian kini terhubung real-time.</span>
                     </div>
                   )}
                 </form>

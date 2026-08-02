@@ -41,8 +41,8 @@ export const RecentUpdates: React.FC<RecentUpdatesProps> = ({ logs, onViewAllAct
 
         {/* Student Logs */}
         <div className="space-y-3">
-          {displayLogs.map((log) => (
-            <div key={log.id} className="grid grid-cols-12 gap-2 items-center text-xs py-1 hover:bg-slate-50 rounded-lg px-1 transition-colors">
+          {displayLogs.map((log, idx) => (
+            <div key={`${log.id}_${idx}`} className="grid grid-cols-12 gap-2 items-center text-xs py-1 hover:bg-slate-50 rounded-lg px-1 transition-colors">
               {/* Student Initials + Name */}
               <div className="col-span-7 flex items-center gap-2.5 overflow-hidden">
                 <div className={`w-7 h-7 rounded-full flex items-center justify-center font-bold text-[10px] shrink-0 ${getAvatarBg(log.studentInitials)}`}>

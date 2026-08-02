@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import { Student, SubjectGradeBreakdown, getSubjectGradeBreakdown, getSubjectFinalScore } from '../types';
-import { Search, Edit2, Check, Download, FileText, ArrowUpDown, Percent, Calculator, Award, Sliders, X, GitCompare, Plus, Users, CheckSquare, Square, Sparkles, Target, Eye, EyeOff, Focus, Filter } from 'lucide-react';
+import { Search, Edit2, Check, Download, FileText, ArrowUpDown, Percent, Calculator, Award, Sliders, X, GitCompare, Plus, Users, CheckSquare, Square, Sparkles, Target, Eye, EyeOff, Focus, Filter, FileSpreadsheet, RefreshCw, Zap } from 'lucide-react';
 import { Radar, RadarChart, PolarGrid, PolarAngleAxis, PolarRadiusAxis, ResponsiveContainer, Legend, Tooltip } from 'recharts';
 
 interface StudentDataViewProps {
@@ -8,6 +8,11 @@ interface StudentDataViewProps {
   onUpdateStudent: (updated: Student) => void;
   onOpenExportModal: (student?: Student) => void;
   activeClass?: string;
+  webAppUrl?: string;
+  isSyncing?: boolean;
+  lastSyncTime?: string;
+  onOpenAppsScriptModal?: () => void;
+  onManualSync?: () => Promise<void>;
 }
 
 const COMPARE_COLORS = [
@@ -33,7 +38,12 @@ export const StudentDataView: React.FC<StudentDataViewProps> = ({
   students,
   onUpdateStudent,
   onOpenExportModal,
-  activeClass = 'Kelas 12-A'
+  activeClass = 'Kelas 12-A',
+  webAppUrl = '',
+  isSyncing = false,
+  lastSyncTime = '',
+  onOpenAppsScriptModal,
+  onManualSync
 }) => {
   const [search, setSearch] = useState('');
   const [editingId, setEditingId] = useState<string | null>(null);
@@ -190,6 +200,62 @@ export const StudentDataView: React.FC<StudentDataViewProps> = ({
 
   return (
     <div className="space-y-6">
+      {/* Real-time Google Spreadsheet Sync Status Banner */}
+      <div className={`p-3.5 px-4 rounded-xl border flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3 text-xs transition-colors ${
+        webAppUrl 
+          ? 'bg-emerald-50/90 border-emerald-200 text-emerald-900 shadow-2xs' 
+          : 'bg-indigo-50/80 border-indigo-200/80 text-indigo-950 shadow-2xs'
+      }`}>
+        <div className="flex items-center gap-2.5">
+          <div className={`p-2 rounded-lg shrink-0 ${webAppUrl ? 'bg-emerald-100 text-emerald-700' : 'bg-indigo-100 text-indigo-700'}`}>
+            <FileSpreadsheet className="w-4 h-4" />
+          </div>
+          <div>
+            <div className="flex items-center gap-2 flex-wrap">
+              <span className="font-bold">
+                {webAppUrl ? 'Hubungan Real-Time Google Spreadsheet Aktif' : 'Otomatisasi Real-Time Google Spreadsheet'}
+              </span>
+              {webAppUrl ? (
+                <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-[10px] font-extrabold bg-emerald-600 text-white shadow-2xs">
+                  <span className="w-1.5 h-1.5 rounded-full bg-white animate-pulse"></span>
+                  TERHUBUNG REALTIME
+                </span>
+              ) : (
+                <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-[10px] font-semibold bg-indigo-100 text-indigo-700">
+                  Manual / Offline Mode
+                </span>
+              )}
+            </div>
+            <p className="text-[11px] mt-0.5 opacity-90 leading-tight">
+              {webAppUrl 
+                ? `Setiap perubahan data siswa & penilaian ${activeClass} otomatis disinkronkan ke Google Spreadsheet. ${lastSyncTime ? `Terakhir tersimpan: ${lastSyncTime}` : ''}`
+                : 'Hubungkan Web App URL Google Apps Script untuk otomatisasi simpan penilaian & data siswa secara real-time.'}
+            </p>
+          </div>
+        </div>
+
+        <div className="flex items-center gap-2 shrink-0 self-end sm:self-auto">
+          {webAppUrl ? (
+            <button
+              onClick={onManualSync}
+              disabled={isSyncing}
+              className="inline-flex items-center gap-1.5 px-3 py-1.5 bg-emerald-700 hover:bg-emerald-800 text-white rounded-lg font-semibold text-xs shadow-2xs transition-colors cursor-pointer disabled:opacity-50"
+            >
+              <RefreshCw className={`w-3.5 h-3.5 ${isSyncing ? 'animate-spin' : ''}`} />
+              <span>{isSyncing ? 'Menyinkronkan...' : 'Sinkronkan Sekarang'}</span>
+            </button>
+          ) : (
+            <button
+              onClick={onOpenAppsScriptModal}
+              className="inline-flex items-center gap-1.5 px-3 py-1.5 bg-[#0B63E5] hover:bg-blue-700 text-white rounded-lg font-semibold text-xs shadow-2xs transition-colors cursor-pointer"
+            >
+              <Zap className="w-3.5 h-3.5 text-amber-300" />
+              <span>Hubungkan Real-Time</span>
+            </button>
+          )}
+        </div>
+      </div>
+
       {/* Header & Summary Bar */}
       <div className="bg-white p-6 rounded-xl border border-slate-200/80 shadow-xs flex flex-col space-y-4">
         <div className="flex flex-col md:flex-row items-start md:items-center justify-between gap-4">

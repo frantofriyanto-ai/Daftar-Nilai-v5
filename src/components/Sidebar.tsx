@@ -29,6 +29,8 @@ interface SidebarProps {
   classList: string[];
   onSelectClass: (clsName: string) => void;
   onOpenClassModal: () => void;
+  isMobileOpen?: boolean;
+  onCloseMobile?: () => void;
 }
 
 export const Sidebar: React.FC<SidebarProps> = ({
@@ -40,7 +42,9 @@ export const Sidebar: React.FC<SidebarProps> = ({
   activeClass,
   classList,
   onSelectClass,
-  onOpenClassModal
+  onOpenClassModal,
+  isMobileOpen = false,
+  onCloseMobile
 }) => {
   const [isEditingTeacher, setIsEditingTeacher] = useState(false);
   const [inputTeacherName, setInputTeacherName] = useState(teacherName);
@@ -77,20 +81,43 @@ export const Sidebar: React.FC<SidebarProps> = ({
   };
 
   return (
-    <aside className="w-64 bg-[#4B497B] text-slate-100 flex flex-col justify-between shrink-0 select-none border-r border-[#3E3C67]">
-      <div>
-        {/* Brand Logo Header */}
-        <div className="p-5 flex items-center justify-between border-b border-indigo-300/10">
-          <div className="flex items-center gap-3">
-            <div className="w-9 h-9 rounded-xl bg-gradient-to-tr from-blue-600 to-indigo-500 flex items-center justify-center text-white shadow-md font-extrabold text-lg tracking-wider">
-              <span className="text-xl">❖</span>
+    <>
+      {/* Mobile Backdrop Overlay */}
+      {isMobileOpen && (
+        <div 
+          className="fixed inset-0 bg-slate-900/60 backdrop-blur-xs z-40 md:hidden transition-opacity"
+          onClick={onCloseMobile}
+        />
+      )}
+
+      <aside className={`
+        fixed md:static top-0 bottom-0 left-0 z-50 md:z-auto
+        w-64 bg-[#4B497B] text-slate-100 flex flex-col justify-between shrink-0 select-none border-r border-[#3E3C67]
+        transition-transform duration-300 ease-in-out
+        ${isMobileOpen ? 'translate-x-0' : '-translate-x-full md:translate-x-0'}
+      `}>
+        <div>
+          {/* Brand Logo Header */}
+          <div className="p-5 flex items-center justify-between border-b border-indigo-300/10">
+            <div className="flex items-center gap-3">
+              <div className="w-9 h-9 rounded-xl bg-gradient-to-tr from-blue-600 to-indigo-500 flex items-center justify-center text-white shadow-md font-extrabold text-lg tracking-wider">
+                <span className="text-xl">❖</span>
+              </div>
+              <div>
+                <h1 className="font-bold text-white text-base tracking-tight leading-snug">DAFTAR NILAI V3</h1>
+                <p className="text-[11px] text-indigo-200/80 font-medium tracking-wide uppercase">Manajemen Akademik</p>
+              </div>
             </div>
-            <div>
-              <h1 className="font-bold text-white text-base tracking-tight leading-snug">DAFTAR NILAI V3</h1>
-              <p className="text-[11px] text-indigo-200/80 font-medium tracking-wide uppercase" style={{ borderColor: '#ee0d1a' }}>Manajemen Akademik</p>
-            </div>
+
+            {/* Mobile Close Button */}
+            <button
+              onClick={onCloseMobile}
+              className="md:hidden p-1.5 text-indigo-200 hover:text-white rounded-lg hover:bg-white/10"
+              title="Tutup Menu"
+            >
+              <X className="w-5 h-5" />
+            </button>
           </div>
-        </div>
 
         {/* Active Class Switcher Widget */}
         <div className="px-3 pt-3 pb-2">
@@ -142,7 +169,10 @@ export const Sidebar: React.FC<SidebarProps> = ({
             return (
               <button
                 key={item.id}
-                onClick={() => onSelectView(item.id)}
+                onClick={() => {
+                  onSelectView(item.id);
+                  if (onCloseMobile) onCloseMobile();
+                }}
                 className={`w-full flex items-center justify-between px-3 py-2 rounded-lg text-xs font-medium transition-all ${
                   isActive
                     ? 'bg-[#5B598E] text-white shadow-xs'
@@ -211,5 +241,6 @@ export const Sidebar: React.FC<SidebarProps> = ({
         )}
       </div>
     </aside>
+    </>
   );
 };
